@@ -9,6 +9,9 @@ export class User {
   @Column({unique: true})
   supabase_user_id: string;
 
+  @Column()
+  refresh_token: string;
+
   @ManyToOne(()=> Role, (role)=> role.user)
   role: Role;
 }
