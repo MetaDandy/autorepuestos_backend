@@ -1,12 +1,10 @@
 import { DataSource } from 'typeorm';
-import { Role } from 'src/role/entities/role.entity';
-import { Permission } from 'src/role/entities/permission.entity';
-import { Role_Permission } from 'src/role/entities/role_permission.entity';
+import { Role } from '../role/entities/role.entity';
+import { Permission } from '../role/entities/permission.entity';
 
 export async function seedRolesAndPermissions(dataSource: DataSource) {
   const roleRepository = dataSource.getRepository(Role);
   const permissionRepository = dataSource.getRepository(Permission);
-  const rolePermissionRepository = dataSource.getRepository(Role_Permission);
 
   // Define los roles
   const rolesData = [
@@ -24,25 +22,28 @@ export async function seedRolesAndPermissions(dataSource: DataSource) {
   ];
 
   // Limpia la base de datos antes de insertar
-  await rolePermissionRepository.clear();
-  await permissionRepository.clear();
-  await roleRepository.clear();
+  await permissionRepository.delete({});
+  await roleRepository.delete({});
 
-  // Inserta permisos
+  // Inserta permisos y roles
   const permissions = await permissionRepository.save(permissionsData);
-
-  // Inserta roles
   const roles = await roleRepository.save(rolesData);
 
   // Relaciona roles con permisos
   const rolePermissionsData = [
-    { role: roles.find(r => r.name === 'Admin'), permission: permissions.find(p => p.code === 'CREATE_USER') },
-    { role: roles.find(r => r.name === 'Admin'), permission: permissions.find(p => p.code === 'UPDATE_USER') },
-    { role: roles.find(r => r.name === 'Admin'), permission: permissions.find(p => p.code === 'DELETE_USER') },
-    { role: roles.find(r => r.name === 'Manager'), permission: permissions.find(p => p.code === 'VIEW_REPORTS') },
+    { roleName: 'Admin', permissionCodes: ['CREATE_USER', 'UPDATE_USER', 'DELETE_USER'] },
+    { roleName: 'Manager', permissionCodes: ['VIEW_REPORTS'] },
   ];
 
-  await rolePermissionRepository.save(rolePermissionsData);
+  for (const rp of rolePermissionsData) {
+    const role = roles.find(r => r.name === rp.roleName);
+    const permissionsForRole = permissions.filter(p => rp.permissionCodes.includes(p.code));
+    
+    if (role) {
+      role.permissions = permissionsForRole; // Establece las relaciones Many-to-Many
+      await roleRepository.save(role); // Guarda el rol con sus permisos
+    }
+  }
 
   console.log('Roles and Permissions Seed Completed');
 }

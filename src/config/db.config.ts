@@ -7,10 +7,8 @@ export default registerAs("dbconfig.dev", (): PostgresConnectionOptions => ({
   //Put the url in .env
   url: process.env.SUPABASE_URL,
   type: "postgres",
-  port: +process.env.DB_PORT,
   entities: [path.resolve(__dirname, "..") + '/**/*.entity{.ts,.js}'],
-  // Only true in developmode
-  synchronize: true,
+  synchronize: process.env.NODE_ENV !== 'production',
   // logging: true
 })
-)
+);

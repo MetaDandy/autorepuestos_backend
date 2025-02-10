@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { SupabaseModule } from './supabase/supabase.module';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from './config/db.config';
-import dbConfigProduction from './config/db.config.production';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
@@ -14,12 +13,10 @@ import { RoleModule } from './role/role.module';
     ConfigModule.forRoot({
       isGlobal:true,
       expandVariables: true,
-      load: [dbConfig,dbConfigProduction]
+      load: [dbConfig]
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: process.env.NODE_ENV === 'production'
-        ? dbConfigProduction
-        : dbConfig,
+      useFactory: dbConfig
     }),
     SupabaseModule,
     AuthModule,

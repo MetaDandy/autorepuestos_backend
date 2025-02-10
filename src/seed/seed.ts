@@ -1,9 +1,23 @@
 import { Logger } from "@nestjs/common";
-import dbConfig from "src/config/db.config";
 import { DataSource } from "typeorm";
 import { seedRolesAndPermissions } from "./roless_permissions.seed";
+import { config } from "dotenv";
 
-const dataSource = new DataSource(dbConfig());
+Logger.warn('Seed running');
+config();
+
+const dataSource = new DataSource({
+  type: 'postgres',
+  url: process.env.SUPABASE_URL,
+  synchronize: false,
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  logging: false,
+});
 
 dataSource.initialize().then(async () => {
   Logger.warn('Database conected');

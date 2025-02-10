@@ -1,6 +1,6 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Role_Permission } from "./role_permission.entity";
-import { User } from "src/auth/entities/user.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { User } from "../../auth/entities/user.entity";
+import { Permission } from "./permission.entity";
 
 @Entity()
 export class Role {
@@ -13,7 +13,7 @@ export class Role {
   @Column()
   description: string;
 
-  @Column()
+  @Column({nullable: true})
   father_id: string;
 
   @CreateDateColumn()
@@ -25,8 +25,9 @@ export class Role {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(()=>Role_Permission, (role_permission)=> role_permission.role)
-  role_permission: Role_Permission[];
+  @ManyToMany(()=>Permission, (permission)=> permission.roles)
+  @JoinTable({name: 'role_permission'})
+  permissions: Permission[];
 
   @OneToMany(()=>User, (user)=> user.role)
   user: User[];
