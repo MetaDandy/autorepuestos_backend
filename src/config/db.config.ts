@@ -5,7 +5,7 @@ import { registerAs } from "@nestjs/config";
 //factory function
 export default registerAs("dbconfig.dev", (): PostgresConnectionOptions => ({
   //Put the url in .env
-  url: process.env.URL,
+  url: process.env.SUPABASE_URL,
   type: "postgres",
   port: +process.env.DB_PORT,
   entities: [path.resolve(__dirname, "..") + '/**/*.entity{.ts,.js}'],

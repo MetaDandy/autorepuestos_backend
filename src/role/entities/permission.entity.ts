@@ -7,6 +7,9 @@ export class Permission {
   id: string;
 
   @Column()
+  code: string;
+
+  @Column()
   name: string;
 
   @Column()

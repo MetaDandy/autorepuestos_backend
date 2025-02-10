@@ -7,11 +7,11 @@ export class Role_Permission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(()=> Role, (role)=>role.role_permission)
+  @ManyToOne(()=> (Role), (role)=>role.role_permission, {nullable: false})
   @JoinColumn({name: 'role_id'})
-  role: Role;
+  role: Promise<Role>;
 
-  @ManyToOne(()=> Permission, (permission)=>permission.role_permission)
+  @ManyToOne(()=> Permission, (permission)=>permission.role_permission, {nullable: false})
   @JoinColumn({name: 'permission_id'})
-  permission: Permission;
+  permission: Promise<Permission>;
 }
