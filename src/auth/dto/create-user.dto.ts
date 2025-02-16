@@ -12,10 +12,10 @@ export class CreateUserDto {
   role_id: string;
 
   @IsString()
-  full_name: string;
+  name: string;
 
   @IsString()
-  phone?: string;
+  phone: string;
 
   @IsString()
   address?: string;

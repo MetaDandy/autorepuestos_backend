@@ -12,6 +12,15 @@ export class User {
   @Column({nullable: true})
   refresh_token: string;
 
+  @Column()
+  name: string;
+
+  @Column()
+  phone: string;
+
+  @Column({nullable: true})
+  address: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

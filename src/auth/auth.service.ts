@@ -4,10 +4,11 @@ import { SupabaseService } from 'src/supabase/supabase.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Role } from 'src/role/entities/role.entity';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindAllDto } from 'src/dto/findAll.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,6 @@ export class AuthService {
   ) { }
 
   //TODO: Reemplazar el repositorio del rol por el servicio y usar el getOne
-
   /**
    * Funcion de login.
    * @param authDto 
@@ -67,21 +67,15 @@ export class AuthService {
    * Solo el administrador o un usuario con el permiso necesario puede crearlo.
    * @param userDto 
    */
+  //* El usuario creado no tiene refresh porque lo crea otra persona
   async create(userDto: CreateUserDto) {
-    const { email, password, full_name, role_id, address, phone } = userDto;
+    const { email, password, name, role_id, address, phone } = userDto;
 
     const { data, error } = await this.supabaseService
       .getClient()
       .auth.signUp({
         email,
         password,
-        phone,
-        options: {
-          data: {
-            full_name,
-            address,
-          }
-        }
       });
 
     if (error) throw new UnauthorizedException(error.message);
@@ -90,25 +84,117 @@ export class AuthService {
 
     const user = this.userRepository.create({
       supabase_user_id: data.user.id,
-      role: role
+      role: role,
+      name,
+      address,
+      phone
     });
 
     return await this.userRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  /**
+   * Solo obtiene todos los usarios sin eliminacion suave.
+   * @param query - Paginacion para la busqueda.
+   * @returns Los usuarios que fueron no eliminados de manera suave.
+   */
+  async findAll(query: FindAllDto<User>) {
+    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
+    const users = await this.userRepository.find({
+      relations: ['role'],
+      take: limit,
+      skip: (page - 1) * limit,
+      order: {
+        [orderBy]: orderDirection
+      },
+      withDeleted: false,
+    });
+
+    return {
+      page,
+      limit,
+      data: users
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  /**
+   * Solo obtiene todos los usarios con eliminacion suave.
+   * @param query - Paginacion para la busqueda.
+   * @returns Los usuarios que fueron eliminados de manera suave.
+   */
+  async findAllSoftDeleted(query: FindAllDto<User>) {
+    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
+    const users = await this.userRepository.find({
+      relations: ['role'],
+      take: limit,
+      skip: (page - 1) * limit,
+      order: {
+        [orderBy]: orderDirection
+      },
+      withDeleted: true,
+      where: {
+        deletedAt: Not(IsNull())
+      }
+    });
+
+    return {
+      page,
+      limit,
+      data: users
+    };
   }
 
-  update(id: number, updateAuthDto: UpdateUserDto) {
-    return `This action updates a #${id} auth`;
+  /**
+   * Se obtiene el usuario solicitado
+   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @returns - Retorna el usuario obtenido.
+   */
+  async findOne(id: string) {
+    const user = await this.userRepository.findOneOrFail({
+      where: {
+        id,
+      },
+      relations: ['role'],
+    });
+
+    return user;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  /**
+   * Actualiza un usuario.
+   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @param updateAuthDto - El tipado necesario para actualizar un usuario.
+   * @returns - Retorna el usuario actualizado.
+   */
+  async update(id: string, updateAuthDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+
+    this.userRepository.merge(user, updateAuthDto);
+
+    return await this.userRepository.save(user);
+  }
+
+  /**
+   * Elimina de forma permanente un usario.
+   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @returns - El usuario totalmente eliminado.
+   */
+  async hardDelete(id: string) {
+    const user = await this.findOne(id);
+
+    return await this.userRepository.remove(user);
+  }
+
+  /**
+   * Elimina el usuario, pero se puede recuperar.
+   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @returns - El usuario eliminado.
+   */
+  async softDelete(id: string) {
+    const user = await this.findOne(id);
+
+    if(user.deletedAt) throw new UnauthorizedException('El usuario ya fue eliminado');
+
+    return await this.userRepository.softRemove(user);
   }
 }
