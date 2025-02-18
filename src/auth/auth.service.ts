@@ -1,14 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { IsNull, Not, Repository } from 'typeorm';
-import { Role } from 'src/role/entities/role.entity';
+import { Role } from '../role/entities/role.entity';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../dto/findAll.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +19,11 @@ export class AuthService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) { }
 
-  //TODO: Reemplazar el repositorio del rol por el servicio y usar el getOne
+  /**
+   * TODO: 
+   * - Reemplazar el repositorio del rol por el servicio y usar el getOne
+   * - Ver el tema del refresh token
+   */
   /**
    * Funcion de login.
    * @param authDto 
@@ -100,7 +104,7 @@ export class AuthService {
    */
   async findAll(query: FindAllDto<User>) {
     const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const users = await this.userRepository.find({
+    const [users, totalCount] = await this.userRepository.findAndCount({
       relations: ['role'],
       take: limit,
       skip: (page - 1) * limit,
@@ -113,6 +117,8 @@ export class AuthService {
     return {
       page,
       limit,
+      totalCount,
+      hasMore: page * limit < totalCount,
       data: users
     };
   }
@@ -124,7 +130,7 @@ export class AuthService {
    */
   async findAllSoftDeleted(query: FindAllDto<User>) {
     const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const users = await this.userRepository.find({
+    const [users, totalCount] = await this.userRepository.findAndCount({
       relations: ['role'],
       take: limit,
       skip: (page - 1) * limit,
@@ -140,6 +146,8 @@ export class AuthService {
     return {
       page,
       limit,
+      totalCount,
+      hasMore: page * limit < totalCount,
       data: users
     };
   }
@@ -180,7 +188,27 @@ export class AuthService {
    * @returns - El usuario totalmente eliminado.
    */
   async hardDelete(id: string) {
-    const user = await this.findOne(id);
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('El usuario no existe');
+    }
+
+    if (!user.supabase_user_id) {
+      throw new Error('User does not have a Supabase ID');
+    }
+
+    // Intentar eliminar el usuario en Supabase
+    const { error } = await this.supabaseService
+      .getClient()
+      .auth.admin.deleteUser(user.supabase_user_id);
+
+    if (error) {
+      throw new Error(`Failed to delete user in Supabase: ${error.message}`);
+    }
 
     return await this.userRepository.remove(user);
   }
@@ -191,10 +219,43 @@ export class AuthService {
    * @returns - El usuario eliminado.
    */
   async softDelete(id: string) {
-    const user = await this.findOne(id);
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
 
-    if(user.deletedAt) throw new UnauthorizedException('El usuario ya fue eliminado');
+    if (!user) {
+      throw new UnauthorizedException('El usuario no existe');
+    }
+
+    if (user.deletedAt) {
+      throw new UnauthorizedException('El usuario ya fue eliminado');
+    }
 
     return await this.userRepository.softRemove(user);
+  }
+
+  /**
+   * Restaura el usuario y le quita la eliminacion.
+   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @returns - El usuario recuperado.
+   */
+  async restore(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('El usuario no existe');
+    }
+
+    if (!user.deletedAt) {
+      throw new UnauthorizedException('El usuario no está eliminado');
+    }
+
+    await this.userRepository.restore(id);
+
+    return { message: 'Usuario restaurado correctamente', user };
   }
 }
