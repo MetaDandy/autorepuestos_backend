@@ -12,9 +12,6 @@ export class Permission {
   @Column()
   name: string;
 
-  @Column()
-  description: string;
-
   @CreateDateColumn()
   createdAt: Date;
 

@@ -5,8 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Role } from 'src/role/entities/role.entity';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { Role } from '../role/entities/role.entity';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Module({
   imports: [

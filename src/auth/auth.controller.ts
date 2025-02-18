@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../dto/findAll.dto';
 import { User } from './entities/user.entity';
 
 @Controller('auth')

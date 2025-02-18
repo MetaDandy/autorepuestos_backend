@@ -7,6 +7,7 @@ import dbConfig from './config/db.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { RoleModule } from './role/role.module';
     SupabaseModule,
     AuthModule,
     RoleModule,
-
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
