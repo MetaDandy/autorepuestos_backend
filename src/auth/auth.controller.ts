@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllDto } from '../dto/findAll.dto';
 import { User } from './entities/user.entity';
+import { Public } from '../decorator/public/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +17,7 @@ export class AuthController {
   }
 
   @Post('sign_in')
+  @Public()
   signIn(@Body() authDto: AuthDto) {
     return this.authService.signIn(authDto);
   }

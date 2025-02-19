@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { SeedModule } from './seed/seed.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './auth/strategies/jwt.stategy';
 
 @Module({
   imports: [
@@ -19,12 +21,13 @@ import { SeedModule } from './seed/seed.module';
     TypeOrmModule.forRootAsync({
       useFactory: dbConfig
     }),
+    PassportModule,
     SupabaseModule,
     AuthModule,
     RoleModule,
     SeedModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}

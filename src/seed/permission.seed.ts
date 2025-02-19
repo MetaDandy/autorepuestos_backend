@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../role/entities/permission.entity';
-import { PermissionEnum } from '../role/enum/permission.enum';
+import { PermissionEnum } from '../enum/permission.enum';
 
 @Injectable()
 export class PermissionSeeder {

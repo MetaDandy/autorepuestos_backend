@@ -23,6 +23,7 @@ export class AuthService {
    * TODO: 
    * - Reemplazar el repositorio del rol por el servicio y usar el getOne
    * - Ver el tema del refresh token
+   * - Ver si se actualizan los usuarios con soft delete
    */
   /**
    * Funcion de login.
@@ -65,6 +66,8 @@ export class AuthService {
       refresh_token: refreshToken,
     }
   }
+
+  
 
   /**
    * Funcion de creacion de un usuario.
