@@ -53,7 +53,9 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('User not found');
 
     const payload = { sub: user.id };
-    const token = this.jswtService.sign(payload);
+    const token = this.jswtService.sign(payload, {
+      expiresIn: '18h'
+    });
     const refreshToken = this.jswtService.sign(payload, {
       expiresIn: '7d',
     });

@@ -10,6 +10,7 @@ import { RoleModule } from './role/role.module';
 import { SeedModule } from './seed/seed.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/strategies/jwt.stategy';
+import { User } from './auth/entities/user.entity';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { JwtStrategy } from './auth/strategies/jwt.stategy';
     TypeOrmModule.forRootAsync({
       useFactory: dbConfig
     }),
-    PassportModule,
+    TypeOrmModule.forFeature([User]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     SupabaseModule,
     AuthModule,
     RoleModule,
