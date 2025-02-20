@@ -131,7 +131,7 @@ export class RoleService {
       where: {
         id,
       },
-      relations: ['permission']
+      relations: ['permissions']
     });
 
     return role;
@@ -213,7 +213,7 @@ export class RoleService {
 
     if (!role) throw new UnauthorizedException('El rol no existe');
  
-    if (role.deletedAt) throw new UnauthorizedException('El rol ya fue eliminado.');
+    if (!role.deletedAt) throw new UnauthorizedException('El rol no fue eliminado.');
 
     await this.roleRepository.restore(id);
 

@@ -94,6 +94,7 @@ export class AuthService {
 
     const user = this.userRepository.create({
       supabase_user_id: data.user.id,
+      email,
       role: role,
       name,
       address,
