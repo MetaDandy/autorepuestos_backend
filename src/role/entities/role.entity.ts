@@ -13,9 +13,6 @@ export class Role {
   @Column()
   description: string;
 
-  @Column({nullable: true})
-  father_id: string;
-
   @CreateDateColumn()
   createdAt: Date;
 

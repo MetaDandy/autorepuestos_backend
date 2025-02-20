@@ -14,7 +14,7 @@ async function bootstrap() {
     new PermissionGuard(reflector)
   );
 
-  app.use(helmet);
+  app.use(helmet());
   app.use(rateLimit(
     {
       windowMs: 1000, // 1 segundo

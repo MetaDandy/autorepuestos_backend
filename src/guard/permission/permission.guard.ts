@@ -20,8 +20,6 @@ export class PermissionGuard implements CanActivate {
       throw new ForbiddenException('No tienes permisos para acceder a esta ruta');
     }
 
-    console.log(user.permissions, requiredPermissions);
-
     // 🔹 Verificar si el usuario tiene **todos** los permisos requeridos.
     const hasPermission = requiredPermissions.every((perm) => user.permissions.includes(perm));
 

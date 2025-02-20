@@ -24,6 +24,7 @@ export class AuthService {
    * - Reemplazar el repositorio del rol por el servicio y usar el getOne
    * - Ver el tema del refresh token
    * - Ver si se actualizan los usuarios con soft delete
+   * - Ver el tema del token de supabase
    */
   /**
    * Funcion de login.
