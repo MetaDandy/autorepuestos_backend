@@ -1,10 +1,8 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CategoryType } from "../../category_type/entities/category_type.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+@Entity({ name: 'category' })
 export class Category {
-  /**
-   * TODO: poner la relacion de a muchos con tipo categoria cuando se cree
-   */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -22,4 +20,7 @@ export class Category {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => CategoryType, (category_type) => category_type.category)
+  category_type: CategoryType[];
 }
