@@ -11,6 +11,7 @@ import { SeedModule } from './seed/seed.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/strategies/jwt.stategy';
 import { User } from './auth/entities/user.entity';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { User } from './auth/entities/user.entity';
     AuthModule,
     RoleModule,
     SeedModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
