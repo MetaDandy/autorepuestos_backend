@@ -11,10 +11,6 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category) private readonly categoryRepository: Repository<Category>
   ) { }
-  /**
-   * TODO:
-   * Conectar con type category
-   */
 
   /**
    * Crea una categoría.
@@ -95,7 +91,6 @@ export class CategoryService {
       where: {
         id,
       },
-      // relations: ['']
     });
   }
 
@@ -121,8 +116,12 @@ export class CategoryService {
   async hardDelete(id: string) {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
+      relations: ['category_type'],
       withDeleted: true,
     });
+
+    if (category.category_type.length > 0)
+      throw new UnauthorizedException('No se puede borrar una categoría con tipos de categorías asignados');
 
     return await this.categoryRepository.remove(category);
   }
@@ -133,16 +132,20 @@ export class CategoryService {
    * @returns La categoría eliminada lógicamente.
    */
   async softDelete(id: string) {
-    const cateogry = await this.categoryRepository.findOneOrFail({
+    const category = await this.categoryRepository.findOneOrFail({
       where: { id },
+      relations: ['category_type'],
       withDeleted: true,
     });
 
-    if (cateogry.deletedAt) {
+    if (category.deletedAt) {
       throw new UnauthorizedException('El usuario ya fue eliminado');
     }
 
-    return await this.categoryRepository.softRemove(cateogry);
+    if (category.category_type.length > 0)
+      throw new UnauthorizedException('No se puede borrar una categoría con tipos de categorías asignados');
+
+    return await this.categoryRepository.softRemove(category);
   }
 
   /**

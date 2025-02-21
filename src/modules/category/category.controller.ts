@@ -6,6 +6,7 @@ import { Permissions } from '../../decorator/permission/permission.decorator';
 import { PermissionEnum } from '../../enum/permission.enum';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { Category } from './entities/category.entity';
+import { Public } from '../../decorator/public/public.decorator';
 
 @Controller('category')
 export class CategoryController {
@@ -24,7 +25,7 @@ export class CategoryController {
   }
 
   @Get()
-  @Permissions(PermissionEnum.CATEGORY_READ)
+  @Public()
   findAll(@Query() findAllDto: FindAllDto<Category>) {
     return this.categoryService.findAll(findAllDto);
   }
@@ -42,6 +43,7 @@ export class CategoryController {
   }
 
   @Patch(':id')
+  @Permissions(PermissionEnum.CATEGORY_UPDATE)
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(id, updateCategoryDto);
   }

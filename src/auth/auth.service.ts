@@ -21,9 +21,8 @@ export class AuthService {
 
   /**
    * TODO: 
-   * - Reemplazar el repositorio del rol por el servicio y usar el getOne
+   * - No dejar eliminar el usuario si este paso su llave a otra tabla, verificar!!
    * - Ver el tema del refresh token
-   * - Ver si se actualizan los usuarios con soft delete
    * - Ver el tema del token de supabase
    */
   /**

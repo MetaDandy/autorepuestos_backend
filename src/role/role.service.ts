@@ -13,6 +13,7 @@ export class RoleService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission) private readonly permissionRepository: Repository<Permission>
   ) { }
+  // TODO: No dejar que borren o editen el rol admin
 
   /**
    * Crea un rol con permisos existentes en la base de datos.
@@ -174,10 +175,14 @@ export class RoleService {
   async hardDelete(id: string) {
     const role = await this.roleRepository.findOne({
       where : { id },
+      relations: ['user'],
       withDeleted: true,
     });
 
     if (!role) throw new UnauthorizedException('El rol no existe');
+
+    if (role.user.length > 0)
+      throw new UnauthorizedException('No se puede eliminar un rol con usuarios asignados');
 
     return await this.roleRepository.remove(role);
   }
@@ -190,12 +195,16 @@ export class RoleService {
   async softDelete(id: string) {
     const role = await this.roleRepository.findOne({
       where: { id },
+      relations: ['user'],
       withDeleted: true,
     });
 
     if (!role) throw new UnauthorizedException('El rol no existe');
  
     if (role.deletedAt) throw new UnauthorizedException('El rol ya fue eliminado.');
+
+    if (role.user.length > 0)
+      throw new UnauthorizedException('No se puede eliminar un rol con usuarios asignados');
 
     return await this.roleRepository.softRemove(role);
   }
