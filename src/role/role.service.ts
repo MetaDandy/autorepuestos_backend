@@ -13,7 +13,6 @@ export class RoleService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission) private readonly permissionRepository: Repository<Permission>
   ) { }
-  // TODO: No dejar que borren o editen el rol admin
 
   /**
    * Crea un rol con permisos existentes en la base de datos.
@@ -148,6 +147,9 @@ export class RoleService {
     const { name, description, permissions } = updateRoleDto;
   
     const role = await this.findOne(id);
+
+    if (role.name === 'Admin')
+      throw new UnauthorizedException('El rol administrador no se puede actualizar');
   
     if (permissions && permissions.length > 0) {
       const permissionEntities = await this.permissionRepository.find({
@@ -181,6 +183,9 @@ export class RoleService {
 
     if (!role) throw new UnauthorizedException('El rol no existe');
 
+    if (role.name === 'Admin')
+      throw new UnauthorizedException('El rol administrador no se puede eliminar');
+
     if (role.user.length > 0)
       throw new UnauthorizedException('No se puede eliminar un rol con usuarios asignados');
 
@@ -200,6 +205,9 @@ export class RoleService {
     });
 
     if (!role) throw new UnauthorizedException('El rol no existe');
+
+    if (role.name === 'Admin')
+      throw new UnauthorizedException('El rol administrador no se puede eliminar');
  
     if (role.deletedAt) throw new UnauthorizedException('El rol ya fue eliminado.');
 
