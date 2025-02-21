@@ -91,6 +91,7 @@ export class CategoryService {
       where: {
         id,
       },
+      relations: ['category_type'],
     });
   }
 
@@ -128,7 +129,7 @@ export class CategoryService {
 
   /**
    * Elimina la categoría lógicamente.
-   * @param id - Uuid del usuario, no el uuid de supabase.
+   * @param id - Uuid de la categoría.
    * @returns La categoría eliminada lógicamente.
    */
   async softDelete(id: string) {
@@ -139,7 +140,7 @@ export class CategoryService {
     });
 
     if (category.deletedAt) {
-      throw new UnauthorizedException('El usuario ya fue eliminado');
+      throw new UnauthorizedException('La categoría ya fue eliminado');
     }
 
     if (category.category_type.length > 0)
@@ -149,7 +150,7 @@ export class CategoryService {
   }
 
   /**
-   * Restaura el categoría y le quita la eliminación lógica.
+   * Restaura la categoría y le quita la eliminación lógica.
    * @param id - Uuid de la categoría.
    * @returns La categoría recuperada.
    */
@@ -161,10 +162,10 @@ export class CategoryService {
 
     if (!category) throw new UnauthorizedException('La categoría no existe');
 
-    if (!category.deletedAt) throw new UnauthorizedException('El usuario no está eliminado');
+    if (!category.deletedAt) throw new UnauthorizedException('La categoría no está eliminado');
 
     await this.categoryRepository.restore(id);
 
-    return { message: 'Usuario restaurado correctamente', category };
+    return { message: 'Categoríá restaurada correctamente', category };
   }
 }

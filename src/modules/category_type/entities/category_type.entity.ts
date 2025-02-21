@@ -8,22 +8,22 @@ export class CategoryType {
      */
     @PrimaryGeneratedColumn('uuid')
     id: string;
-  
-    @Column()
+
+    @Column({ unique: true })
     name: string;
-  
+
     @Column()
     description: string;
-  
+
     @CreateDateColumn()
     createdAt: Date;
-  
+
     @UpdateDateColumn()
     updatedAt: Date;
-  
+
     @DeleteDateColumn()
     deletedAt: Date;
 
-    @ManyToOne(()=> Category, (category) => category.category_type)
+    @ManyToOne(() => Category, (category) => category.category_type)
     category: Relation<Category>;
 }
