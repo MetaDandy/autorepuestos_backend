@@ -1,5 +1,5 @@
 import { Role } from "../../role/entities/role.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity('user')
 export class User {
@@ -34,5 +34,5 @@ export class User {
   deletedAt: Date;
 
   @ManyToOne(() => Role, (role) => role.user)
-  role: Role;
+  role: Relation<Role>;
 }

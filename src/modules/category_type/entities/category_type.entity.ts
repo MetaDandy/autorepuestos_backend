@@ -1,5 +1,5 @@
-import type { Category } from "../../category/entities/category.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Category } from "../../category/entities/category.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'category_type' })
 export class CategoryType {
@@ -24,6 +24,6 @@ export class CategoryType {
     @DeleteDateColumn()
     deletedAt: Date;
 
-    @ManyToOne(()=> require('../../category/entities/category.entity').Category, (category) => category.category_type)
-    category: Category;
+    @ManyToOne(()=> Category, (category) => category.category_type)
+    category: Relation<Category>;
 }
