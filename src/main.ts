@@ -2,7 +2,6 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './guard/jwt-auth/jwt-auth.guard';
 import { PermissionGuard } from './guard/permission/permission.guard';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { ValidationPipe } from '@nestjs/common';
 
@@ -21,7 +20,6 @@ async function bootstrap() {
     new PermissionGuard(reflector)
   );
 
-  app.use(helmet());
   app.use(rateLimit(
     {
       windowMs: 1000,
