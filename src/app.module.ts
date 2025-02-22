@@ -13,6 +13,7 @@ import { JwtStrategy } from './auth/strategies/jwt.stategy';
 import { User } from './auth/entities/user.entity';
 import { CategoryModule } from './modules/category/category.module';
 import { CategoryTypeModule } from './modules/category_type/category_type.module';
+import { BrandModule } from './modules/brand/brand.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CategoryTypeModule } from './modules/category_type/category_type.module
     SeedModule,
     CategoryModule,
     CategoryTypeModule,
+    BrandModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
