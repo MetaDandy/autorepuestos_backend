@@ -1,7 +1,7 @@
 import { applyDecorators, BadRequestException, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 
-export function OneFileUploadInterceptor(fieldName: string) {
+export function OneImageUploadInterceptor(fieldName: string) {
   return applyDecorators(
     UseInterceptors(FileInterceptor(fieldName, {
       limits: {

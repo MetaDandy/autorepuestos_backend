@@ -7,7 +7,7 @@ import { PermissionEnum } from 'src/enum/permission.enum';
 import { Public } from 'src/decorator/public/public.decorator';
 import { FindAllDto } from 'src/dto/findAll.dto';
 import { Brand } from './entities/brand.entity';
-import { OneFileUploadInterceptor } from 'src/decorator/one_file_upload_interceptor/one_file_upload_interceptor.decorator';
+import { OneImageUploadInterceptor } from 'src/decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
 
 @Controller('brand')
 export class BrandController {
@@ -15,7 +15,7 @@ export class BrandController {
 
   @Post()
   @Permissions(PermissionEnum.BRAND_CREATE)
-  @OneFileUploadInterceptor('logo')
+  @OneImageUploadInterceptor('logo')
   create(
     @Body() createBrandDto: CreateBrandDto,
     @UploadedFile() file?: Express.Multer.File
@@ -50,7 +50,7 @@ export class BrandController {
 
   @Patch(':id')
   @Permissions(PermissionEnum.BRAND_UPDATE)
-  @OneFileUploadInterceptor('logo')
+  @OneImageUploadInterceptor('logo')
   update(
     @Param('id') id: string, 
     @Body() updateBrandDto: UpdateBrandDto,
