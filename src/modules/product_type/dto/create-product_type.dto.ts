@@ -1,6 +1,6 @@
 import { IsString, IsUUID } from "class-validator";
 
-export class CreateCategoryTypeDto {
+export class CreateProductTypeDto {
   @IsString()
   name: string;
 
@@ -8,5 +8,5 @@ export class CreateCategoryTypeDto {
   description: string;
 
   @IsUUID()
-  category_id: string;
+  category_type_id: string;
 }

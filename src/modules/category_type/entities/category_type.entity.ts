@@ -1,11 +1,9 @@
+import { ProductType } from "../../product_type/entities/product_type.entity";
 import { Category } from "../../category/entities/category.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'category_type' })
 export class CategoryType {
-    /**
-     * TODO: poner la relacion de uno a muchos con tipo producto cuando se cree
-     */
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -26,4 +24,7 @@ export class CategoryType {
 
     @ManyToOne(() => Category, (category) => category.category_type)
     category: Relation<Category>;
+
+    @OneToMany(() => ProductType, (product_type) => product_type.category_type)
+    product_type: Relation<ProductType[]>;
 }
