@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFile } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -7,7 +7,7 @@ import { PermissionEnum } from 'src/enum/permission.enum';
 import { Public } from 'src/decorator/public/public.decorator';
 import { FindAllDto } from 'src/dto/findAll.dto';
 import { Brand } from './entities/brand.entity';
-import { FileUploadInterceptor } from 'src/decorator/file_upload_interceptor/file_upload_interceptor.decorator';
+import { OneFileUploadInterceptor } from 'src/decorator/one_file_upload_interceptor/one_file_upload_interceptor.decorator';
 
 @Controller('brand')
 export class BrandController {
@@ -15,11 +15,12 @@ export class BrandController {
 
   @Post()
   @Permissions(PermissionEnum.BRAND_CREATE)
-  @FileUploadInterceptor('logo')
+  @OneFileUploadInterceptor('logo')
   create(
     @Body() createBrandDto: CreateBrandDto,
     @UploadedFile() file?: Express.Multer.File
   ) {
+    console.log(file);
     return this.brandService.create(createBrandDto, file);
   }
 
@@ -49,13 +50,21 @@ export class BrandController {
 
   @Patch(':id')
   @Permissions(PermissionEnum.BRAND_UPDATE)
-  @FileUploadInterceptor('logo')
+  @OneFileUploadInterceptor('logo')
   update(
     @Param('id') id: string, 
     @Body() updateBrandDto: UpdateBrandDto,
     @UploadedFile() file?: Express.Multer.File
   ) {
+    console.log(updateBrandDto.logo)
+    console.log(file)
     return this.brandService.update(id, updateBrandDto, file);
+  }
+  
+  @Delete(':id/image')
+  @Permissions(PermissionEnum.BRAND_UPDATE)
+  deleteImage(@Param('id') id: string) {
+    return this.brandService.deleteImage(id);
   }
 
   @Delete('hard_delete/:id')

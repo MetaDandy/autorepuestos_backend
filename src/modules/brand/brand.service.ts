@@ -4,7 +4,7 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand } from './entities/brand.entity';
 import { IsNull, Not, Repository } from 'typeorm';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 
@@ -172,17 +172,9 @@ export class BrandService {
 
       if (brand.logo) {
         const oldPath = brand.logo.split('/').pop();
+        console.log(`borrar: logos/${oldPath}`);
         await this.supabaseService.getClient().storage.from('brands').remove([`logos/${oldPath}`]);
       }
-    }
-
-    // Si el usuario envía `logo: null`, eliminar la imagen
-    if ('logo' in updateBrandDto && updateBrandDto.logo === null) {
-      if (brand.logo) {
-        const oldPath = brand.logo.split('/').pop();
-        await this.supabaseService.getClient().storage.from('brands').remove([`logos/${oldPath}`]);
-      }
-      logoUrl = null;
     }
 
     // Construir solo los datos que se deben actualizar
@@ -191,9 +183,9 @@ export class BrandService {
       updatedData.logo = logoUrl;
     }
 
-    await this.brandRepository.update(id, updatedData);
+    this.brandRepository.merge(brand, updateBrandDto, { logo: file || 'logo' in updateBrandDto ? logoUrl : brand.logo });
 
-    return this.brandRepository.findOne({ where: { id } });
+    return await this.brandRepository.save(brand);
   }
 
   /**
@@ -211,6 +203,7 @@ export class BrandService {
 
     if (brand.logo) {
       const oldPath = brand.logo.split('/').pop();
+      console.log(`borrar: logos/${oldPath}`);
       const { error } = await this.supabaseService
         .getClient()
         .storage.from('brands')
@@ -251,7 +244,7 @@ export class BrandService {
 
   /**
    * Restaura la marca y le quita la eliminación lógica.
-   * @param id - Uuid del tipo de la marca.
+   * @param id - Uuid de la marca.
    * @returns La marca recuperada.
    */
   async restore(id: string) {
@@ -267,5 +260,30 @@ export class BrandService {
     await this.brandRepository.restore(id);
 
     return { message: 'Tipo de categoría restaurada correctamente', brand };
+  }
+
+  /**
+   * Elimina la imagen asociada a la marca.
+   * @param id - Uuid de la marca
+   * @returns La marca con el logo eliminado si es que tiene.
+   */
+  async deleteImage(id: string) {
+    const brand = await this.brandRepository.findOne({ where: { id } });
+    if (!brand || !brand.logo) {
+      throw new BadRequestException('No hay imagen para eliminar.');
+    }
+
+    const filePath = brand.logo.split('/').pop();
+    console.log(`borrar: logos/${filePath}`);
+    const { error } = await this.supabaseService.getClient()
+      .storage.from('brands')
+      .remove([`logos/${filePath}`]);
+
+    if (error) throw new Error('Error al eliminar la imagen');
+
+    brand.logo = null;
+    await this.brandRepository.save(brand);
+
+    return { message: 'Imagen eliminada correctamente', data: brand };
   }
 }

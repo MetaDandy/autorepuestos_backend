@@ -7,5 +7,5 @@ export class CreateBrandDto {
   @ValidateIf((o) => !o.logoFile)
   @IsOptional()
   @IsUrl({}, { message: 'Debe ser una URL válida o un archivo' })
-  logo?: string | null;
+  logo?: string;
 }
