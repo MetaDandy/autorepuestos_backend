@@ -16,10 +16,6 @@ export class CategoryTypeService {
   ) { }
 
   /**
-   * TODO: conectar con product category para las relaciones de findone
-   */
-
-  /**
    * Crea un tipo de categoría.
    * @param createCategoryDto - Variables para crear el tipo de categoría.
    * @returns El tipo de categoría creada.
@@ -102,13 +98,12 @@ export class CategoryTypeService {
       where: {
         id,
       },
-      // relations: [''],
     });
   }
 
   /**
    * Actualiza un tipo de categoría.
-   * @param id - Uuid de la categoría.
+   * @param id - Uuid del tipo de categoría.
    * @param updateCategoryDto - Las variables necesarias para la actualización.
    * @returns El tipo de categoría actualizada.
    */
@@ -128,12 +123,19 @@ export class CategoryTypeService {
   async hardDelete(id: string) {
     const categoryType = await this.categoryTypeRepository.findOneOrFail({
       where: { id },
-      // relations: ['category_type'],
       withDeleted: true,
     });
 
-    // if (category.category_type.length > 0)
-    //   throw new UnauthorizedException('No se puede borrar una categoría con tipos de categorías asignados');
+    const hasProducts = await this.categoryTypeRepository
+      .createQueryBuilder('categoryType')
+      .leftJoin('categoryType.product_type', 'productType')
+      .where('categoryType.id = :id', { id })
+      .andWhere('productType.id IS NOT NULL')
+      .getExists();
+
+
+    if (hasProducts)
+      throw new UnauthorizedException('No se puede borrar un tipo de categoría con tipos de productos asignados');
 
     return await this.categoryTypeRepository.remove(categoryType);
   }
@@ -146,16 +148,23 @@ export class CategoryTypeService {
   async softDelete(id: string) {
     const categoryType = await this.categoryTypeRepository.findOneOrFail({
       where: { id },
-      // relations: ['category_type'],
       withDeleted: true,
     });
 
     if (categoryType.deletedAt) {
-      throw new UnauthorizedException('El usuario ya fue eliminado');
+      throw new UnauthorizedException('La tipo de categoría ya fue eliminado');
     }
 
-    // if (category.category_type.length > 0)
-    //   throw new UnauthorizedException('No se puede borrar una categoría con tipos de categorías asignados');
+    const hasProducts = await this.categoryTypeRepository
+      .createQueryBuilder('categoryType')
+      .leftJoin('categoryType.product_type', 'productType')
+      .where('categoryType.id = :id', { id })
+      .andWhere('productType.id IS NOT NULL')
+      .getExists();
+
+
+    if (hasProducts)
+      throw new UnauthorizedException('No se puede borrar un tipo de categoría con tipos de productos asignados');
 
     return await this.categoryTypeRepository.softRemove(categoryType);
   }

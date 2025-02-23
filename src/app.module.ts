@@ -14,6 +14,7 @@ import { User } from './auth/entities/user.entity';
 import { CategoryModule } from './modules/category/category.module';
 import { CategoryTypeModule } from './modules/category_type/category_type.module';
 import { BrandModule } from './modules/brand/brand.module';
+import { ProductTypeModule } from './modules/product_type/product_type.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BrandModule } from './modules/brand/brand.module';
     CategoryModule,
     CategoryTypeModule,
     BrandModule,
+    ProductTypeModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
