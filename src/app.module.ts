@@ -15,6 +15,9 @@ import { CategoryModule } from './modules/category/category.module';
 import { CategoryTypeModule } from './modules/category_type/category_type.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { ProductTypeModule } from './modules/product_type/product_type.module';
+import { ModelModule } from './modules/model/model.module';
+import { ImageService } from './services/image/image.service';
+import { BaseService } from './services/base/base.service';
 
 @Module({
   imports: [
@@ -36,8 +39,9 @@ import { ProductTypeModule } from './modules/product_type/product_type.module';
     CategoryTypeModule,
     BrandModule,
     ProductTypeModule,
+    ModelModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [AppService, JwtStrategy, ImageService, BaseService],
 })
 export class AppModule {}
