@@ -75,7 +75,7 @@ export class ModelService {
    * @returns El modelo obtenido.
    */
   async findOne(id: string) {
-    return await this.baseService.findOne(id, this.modelRepository);
+    return await this.baseService.findOne(id, this.modelRepository, ['brand']);
   }
 
   /**

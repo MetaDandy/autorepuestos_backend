@@ -51,11 +51,13 @@ export class BaseService {
   /**
    * 🔍 Obtiene un registro por su ID.
    * @param id - UUID del registro.
+   * @param relations - Relaciones opcionales a incluir.
    * @returns El registro encontrado o una excepción si no existe.
    */
-  async findOne<T>(id: string, repository: Repository<T>) {
+  async findOne<T>(id: string, repository: Repository<T>, relations: string[] = []) {
     const entity = await repository.findOne({
       where: { id } as any,
+      relations: relations.length > 0 ? relations : undefined,
     });
 
     if (!entity) throw new BadRequestException(`No se encontró el registro solicitado.`);
