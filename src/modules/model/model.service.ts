@@ -57,16 +57,16 @@ export class ModelService {
    * @returns Los modelos que no han sido eliminadas lógicamente.
    */
   async findAll(query: FindAllDto<Model>) {
-    return await this.baseService.findAll(this.modelRepository, query)
+    return await this.baseService.findAll(this.modelRepository, query, ['brand']);
   }
 
   /**
-     * Obtiene las marcas que fueron eliminadas lógicamente.
-     * @param query - Paginación para la búsqueda.
-     * @returns Las marcas que han sido eliminadas lógicamente.
-     */
+   * Obtiene las marcas que fueron eliminadas lógicamente.
+   * @param query - Paginación para la búsqueda.
+   * @returns Las marcas que han sido eliminadas lógicamente.
+   */
   async findAllSoftDeleted(query: FindAllDto<Model>) {
-    return await this.baseService.findAllSoftDeleted(this.modelRepository, query)
+    return await this.baseService.findAllSoftDeleted(this.modelRepository, query, ['brand']);
   }
 
   /**

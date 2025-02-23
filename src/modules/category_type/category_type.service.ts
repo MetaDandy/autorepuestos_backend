@@ -1,11 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateCategoryTypeDto } from './dto/create-category_type.dto';
 import { UpdateCategoryTypeDto } from './dto/update-category_type.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryType } from './entities/category_type.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
 import { FindAllDto } from 'src/dto/findAll.dto';
+import { BaseService } from 'src/services/base/base.service';
 
 @Injectable()
 export class CategoryTypeService {
@@ -13,6 +14,7 @@ export class CategoryTypeService {
     @InjectRepository(CategoryType)
     private readonly categoryTypeRepository: Repository<CategoryType>,
     private readonly categoryService: CategoryService,
+    private readonly baseService: BaseService,
   ) { }
 
   /**
@@ -31,7 +33,6 @@ export class CategoryTypeService {
       category
     });
 
-
     return await this.categoryTypeRepository.save(categoryType);
   }
 
@@ -41,23 +42,7 @@ export class CategoryTypeService {
    * @returns Los tipos de categorías que no han sido eliminadas.
    */
   async findAll(query: FindAllDto<CategoryType>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [categoriesTypes, totalCount] = await this.categoryTypeRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: false,
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: categoriesTypes
-    };
+    return this.baseService.findAll(this.categoryTypeRepository, query, ['category']);
   }
 
   /**
@@ -66,26 +51,7 @@ export class CategoryTypeService {
    * @returns Los tipos de categorías que han sido eliminadas lógicamente.
    */
   async findAllSoftDeleted(query: FindAllDto<CategoryType>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [categoriesTypes, totalCount] = await this.categoryTypeRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: true,
-      where: {
-        deletedAt: Not(IsNull())
-      }
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: categoriesTypes
-    };
+    return this.baseService.findAllSoftDeleted(this.categoryTypeRepository, query, ['category']);
   }
 
   /**
@@ -94,11 +60,7 @@ export class CategoryTypeService {
    * @returns El tipo de categoría obtenida.
    */
   async findOne(id: string) {
-    return await this.categoryTypeRepository.findOneOrFail({
-      where: {
-        id,
-      },
-    });
+    return await this.baseService.findOne(id, this.categoryTypeRepository, ['category']);
   }
 
   /**
@@ -121,23 +83,18 @@ export class CategoryTypeService {
    * @returns El tipo de categoría eliminada físicamente.
    */
   async hardDelete(id: string) {
-    const categoryType = await this.categoryTypeRepository.findOneOrFail({
-      where: { id },
-      withDeleted: true,
-    });
-
-    const hasProducts = await this.categoryTypeRepository
-      .createQueryBuilder('categoryType')
-      .leftJoin('categoryType.product_type', 'productType')
-      .where('categoryType.id = :id', { id })
-      .andWhere('productType.id IS NOT NULL')
-      .getExists();
-
-
-    if (hasProducts)
-      throw new UnauthorizedException('No se puede borrar un tipo de categoría con tipos de productos asignados');
-
-    return await this.categoryTypeRepository.remove(categoryType);
+    return this.baseService.hardDeleteWithRelationsCheck(
+      id,
+      this.categoryTypeRepository,
+      async (id) => {
+        return await this.categoryTypeRepository
+          .createQueryBuilder('categoryType')
+          .leftJoin('categoryType.product_type', 'productType')
+          .where('categoryType.id = :id', { id })
+          .andWhere('productType.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**
@@ -146,27 +103,18 @@ export class CategoryTypeService {
    * @returns El tipo de categoría eliminada lógicamente.
    */
   async softDelete(id: string) {
-    const categoryType = await this.categoryTypeRepository.findOneOrFail({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (categoryType.deletedAt) {
-      throw new UnauthorizedException('La tipo de categoría ya fue eliminado');
-    }
-
-    const hasProducts = await this.categoryTypeRepository
-      .createQueryBuilder('categoryType')
-      .leftJoin('categoryType.product_type', 'productType')
-      .where('categoryType.id = :id', { id })
-      .andWhere('productType.id IS NOT NULL')
-      .getExists();
-
-
-    if (hasProducts)
-      throw new UnauthorizedException('No se puede borrar un tipo de categoría con tipos de productos asignados');
-
-    return await this.categoryTypeRepository.softRemove(categoryType);
+    return this.baseService.softDeleteWithRelationsCheck(
+      id,
+      this.categoryTypeRepository,
+      async (id) => {
+        return await this.categoryTypeRepository
+          .createQueryBuilder('categoryType')
+          .leftJoin('categoryType.product_type', 'productType')
+          .where('categoryType.id = :id', { id })
+          .andWhere('productType.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**
@@ -175,17 +123,6 @@ export class CategoryTypeService {
    * @returns El tipo de categoría recuperada.
    */
   async restore(id: string) {
-    const categoryType = await this.categoryTypeRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!categoryType) throw new UnauthorizedException('El tipo de categoría no existe');
-
-    if (!categoryType.deletedAt) throw new UnauthorizedException('El tipo de categoría no está eliminado');
-
-    await this.categoryTypeRepository.restore(id);
-
-    return { message: 'Tipo de categoría restaurada correctamente', categoryType };
+    return await this.baseService.restore(id, this.categoryTypeRepository);
   }
 }

@@ -9,21 +9,26 @@ import { Role } from '../role/entities/role.entity';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindAllDto } from '../dto/findAll.dto';
+import { BaseService } from '../services/base/base.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly jswtService: JwtService,
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    private readonly baseService: BaseService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) { }
 
   /**
    * TODO: 
    * - No dejar eliminar el usuario si este paso su llave a otra tabla, verificar!!
-   * - Ver el tema del refresh token
-   * - Ver el tema del token de supabase
+   * - Ver el tema del refresh token.
+   * - Ver el tema del token de supabase.
+   * - Ver si factorizamos todo de supabase auth.
    */
   /**
    * Funcion de login.
@@ -69,7 +74,6 @@ export class AuthService {
     }
   }
 
-  
 
   /**
    * Funcion de creacion de un usuario.
@@ -109,24 +113,7 @@ export class AuthService {
    * @returns Los usuarios que fueron no eliminados de manera suave.
    */
   async findAll(query: FindAllDto<User>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [users, totalCount] = await this.userRepository.findAndCount({
-      relations: ['role'],
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: false,
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: users
-    };
+    return await this.baseService.findAll(this.userRepository, query, ['role']);
   }
 
   /**
@@ -135,27 +122,7 @@ export class AuthService {
    * @returns Los usuarios que fueron eliminados de manera suave.
    */
   async findAllSoftDeleted(query: FindAllDto<User>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [users, totalCount] = await this.userRepository.findAndCount({
-      relations: ['role'],
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: true,
-      where: {
-        deletedAt: Not(IsNull())
-      }
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: users
-    };
+    return await this.baseService.findAllSoftDeleted(this.userRepository, query, ['role']);
   }
 
   /**
@@ -164,14 +131,7 @@ export class AuthService {
    * @returns - Retorna el usuario obtenido.
    */
   async findOne(id: string) {
-    const user = await this.userRepository.findOneOrFail({
-      where: {
-        id,
-      },
-      relations: ['role'],
-    });
-
-    return user;
+    return await this.baseService.findOne(id, this.userRepository, ['role']);
   }
 
   /**
@@ -247,21 +207,6 @@ export class AuthService {
    * @returns - El usuario recuperado.
    */
   async restore(id: string) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('El usuario no existe');
-    }
-
-    if (!user.deletedAt) {
-      throw new UnauthorizedException('El usuario no está eliminado');
-    }
-
-    await this.userRepository.restore(id);
-
-    return { message: 'Usuario restaurado correctamente', user };
+    return await this.baseService.restore(id, this.userRepository);
   }
 }

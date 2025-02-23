@@ -4,6 +4,7 @@ import { CategoryTypeController } from './category_type.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryType } from './entities/category_type.entity';
 import { CategoryModule } from '../category/category.module';
+import { BaseService } from '../../services/base/base.service';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { CategoryModule } from '../category/category.module';
     CategoryModule
   ],
   controllers: [CategoryTypeController],
-  providers: [CategoryTypeService],
+  providers: [CategoryTypeService, BaseService],
 })
 export class CategoryTypeModule {}

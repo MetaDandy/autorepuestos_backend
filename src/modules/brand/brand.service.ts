@@ -7,13 +7,17 @@ import { IsNull, Not, Repository } from 'typeorm';
 import sharp from 'sharp';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { FindAllDto } from '../../dto/findAll.dto';
+import { BaseService } from '../../services/base/base.service';
+import { ImageService } from 'src/services/image/image.service';
 
 @Injectable()
 export class BrandService {
   constructor(
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+    private readonly imageService: ImageService,
     private readonly supabaseService: SupabaseService,
+    private readonly baseService: BaseService,
   ) { }
 
   // TODO: conectar con model
