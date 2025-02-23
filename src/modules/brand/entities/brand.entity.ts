@@ -1,8 +1,8 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Model } from "../../model/entities/model.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Brand {
-  // TODO: poner la relacion con model
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,4 +20,7 @@ export class Brand {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => Model, (model) => model.brand)
+  model: Relation<Model>;
 }

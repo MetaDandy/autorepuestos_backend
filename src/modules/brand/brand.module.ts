@@ -12,5 +12,6 @@ import { SupabaseModule } from 'src/supabase/supabase.module';
   ],
   controllers: [BrandController],
   providers: [BrandService],
+  exports: [BrandService]
 })
 export class BrandModule {}

@@ -1,22 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class SupabaseService {
   private supabase: SupabaseClient;
 
-  constructor(){
+  constructor() {
     this.supabase = createClient(
       process.env.SUPABASE_PROJECT_URL || '',
       process.env.SUPABASE_API_KEY_SERVICE_ROLE || process.env.SUPABASE_API_KEY || '',
     )
   }
 
+  // TODO: Ver si esta bien que delete file sea un void
+
   /**
    * Obtiene el cliente de supabase inicializado.
    * @returns El cliente de supabase inicializado.
    */
-  getClient(): SupabaseClient{
+  getClient(): SupabaseClient {
     return this.supabase;
   }
 
@@ -59,11 +61,10 @@ export class SupabaseService {
    * @param filePath - Ruta dentro del bucket (ej: 'logos/imagen.webp')
    */
   async deleteFile(bucket: string, filePath: string): Promise<void> {
+    if (!filePath) throw new BadRequestException('No se proporcionó un archivo para eliminar.');
+
     const { error } = await this.supabase.storage.from(bucket).remove([filePath]);
 
-    if (error) {
-      console.error('Error al eliminar el archivo:', error.message);
-      throw new Error('Error al eliminar el archivo');
-    }
+    if (error) throw new Error(`Error al eliminar el archivo: ${error.message}`);
   }
 }
