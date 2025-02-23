@@ -71,7 +71,7 @@ export class ProductTypeService {
    */
   async findAllSoftDeleted(query: FindAllDto<ProductType>) {
     const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [productsTypes, totalCount] = await this.categoryTypeRepository.findAndCount({
+    const [productsTypes, totalCount] = await this.productTypeRepository.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
       order: {
