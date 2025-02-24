@@ -3,15 +3,19 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Permission } from './entities/permission.entity';
 import { FindAllDto } from '../dto/findAll.dto';
+import { BaseService } from 'src/services/base/base.service';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Permission) private readonly permissionRepository: Repository<Permission>
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+    private readonly baseService: BaseService,
   ) { }
 
   /**
@@ -49,23 +53,7 @@ export class RoleService {
    * @returns Los roles que no han sido eliminado.
    */
   async findAll(query: FindAllDto<Role>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [roles, totalCount] = await this.roleRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: false,
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: roles
-    };
+    return await this.baseService.findAll(this.roleRepository, query);
   }
 
   /**
@@ -74,26 +62,7 @@ export class RoleService {
    * @returns Los roles que han sido eliminado.
    */
   async findAllSoftDeleted(query: FindAllDto<Role>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [roles, totalCount] = await this.roleRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: true,
-      where: {
-        deletedAt: Not(IsNull())
-      }
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: roles
-    };
+    return await this.baseService.findAllSoftDeleted(this.roleRepository, query);
   }
 
   /**
@@ -102,23 +71,7 @@ export class RoleService {
    * @returns Los permisos.
    */
   async findAllPermission(query: FindAllDto<Permission>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [permissions, totalCount] = await this.permissionRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: false,
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: permissions
-    };
+    return await this.baseService.findAll(this.permissionRepository, query);
   }
 
   /**
@@ -127,14 +80,7 @@ export class RoleService {
    * @returns El rol obtenido.
    */
   async findOne(id: string) {
-    const role = await this.roleRepository.findOneOrFail({
-      where: {
-        id,
-      },
-      relations: ['permissions']
-    });
-
-    return role;
+    return await this.baseService.findOne(id, this.roleRepository, ['permissions']);
   }
 
   /**
@@ -145,27 +91,27 @@ export class RoleService {
    */
   async update(id: string, updateRoleDto: UpdateRoleDto) {
     const { name, description, permissions } = updateRoleDto;
-  
+
     const role = await this.findOne(id);
 
     if (role.name === 'Admin')
       throw new UnauthorizedException('El rol administrador no se puede actualizar');
-  
+
     if (permissions && permissions.length > 0) {
       const permissionEntities = await this.permissionRepository.find({
         where: { id: In(permissions) },
       });
-  
+
       if (permissionEntities.length !== permissions.length) {
         throw new BadRequestException('Uno o más permisos no existen');
       }
-  
+
       role.permissions = permissionEntities;
     }
-  
+
     if (name) role.name = name;
     if (description) role.description = description;
-  
+
     return await this.roleRepository.save(role);
   }
 
@@ -176,7 +122,7 @@ export class RoleService {
    */
   async hardDelete(id: string) {
     const role = await this.roleRepository.findOne({
-      where : { id },
+      where: { id },
       relations: ['user'],
       withDeleted: true,
     });
@@ -208,7 +154,7 @@ export class RoleService {
 
     if (role.name === 'Admin')
       throw new UnauthorizedException('El rol administrador no se puede eliminar');
- 
+
     if (role.deletedAt) throw new UnauthorizedException('El rol ya fue eliminado.');
 
     if (role.user.length > 0)
@@ -223,17 +169,6 @@ export class RoleService {
    * @returns El rol recuperado.
    */
   async restore(id: string) {
-    const role = await this.roleRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!role) throw new UnauthorizedException('El rol no existe');
- 
-    if (!role.deletedAt) throw new UnauthorizedException('El rol no fue eliminado.');
-
-    await this.roleRepository.restore(id);
-
-    return { message: 'Rol restaurado correctamente', role };
+    return await this.baseService.restore(id, this.roleRepository);
   }
 }

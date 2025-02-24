@@ -11,15 +11,22 @@ export class BaseService {
    * 📄 Pagina los resultados de una entidad.
    * @param repository - Repositorio de TypeORM de la entidad.
    * @param query - Parámetros de paginación (límite, página, ordenamiento).
+   * @param relations - Relaciones opcionales a incluir.
    * @param options - Opciones adicionales de búsqueda y relaciones.
    * @returns Un objeto con los datos paginados y metadatos.
    */
-  async findAll<T>(repository: Repository<T>, query: FindAllDto<T>, options?: FindManyOptions<T>) {
+  async findAll<T>(
+    repository: Repository<T>, 
+    query: FindAllDto<T>, 
+    relations: string[] = [],
+    options?: FindManyOptions<T>
+  ) {
     const { limit, page, orderBy, orderDirection } = query;
 
     const [data, totalCount] = await repository.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
+      relations: relations.length > 0 ? relations : undefined,
       order: {
         [orderBy]: orderDirection || 'ASC'
       } as any,
@@ -39,10 +46,11 @@ export class BaseService {
    * 🗑️ Pagina los registros eliminados lógicamente de una entidad.
    * @param repository - Repositorio de TypeORM de la entidad.
    * @param query - Parámetros de paginación (límite, página, ordenamiento).
+   * @param relations - Relaciones opcionales a incluir.
    * @returns Un objeto con los datos paginados de registros eliminados lógicamente.
    */
-  async findAllSoftDeleted<T>(repository: Repository<T>, query: FindAllDto<T>) {
-    return this.findAll(repository, query, {
+  async findAllSoftDeleted<T>(repository: Repository<T>, query: FindAllDto<T>, relations: string[] = []) {
+    return this.findAll(repository, query, relations, {
       withDeleted: true,
       where: { deletedAt: Not(IsNull()) } as any,
     });
