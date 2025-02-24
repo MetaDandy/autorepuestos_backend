@@ -1,14 +1,13 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand } from './entities/brand.entity';
-import { IsNull, Not, Repository } from 'typeorm';
-import sharp from 'sharp';
+import { Repository } from 'typeorm';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { BaseService } from '../../services/base/base.service';
-import { ImageService } from 'src/services/image/image.service';
+import { ImageService } from '../../services/image/image.service';
 
 @Injectable()
 export class BrandService {
@@ -20,8 +19,6 @@ export class BrandService {
     private readonly baseService: BaseService,
   ) { }
 
-  // TODO: conectar con model
-
   /**
    * Crea una marca.
    * @param createBrandDto - Variables para crear la marca.
@@ -29,37 +26,22 @@ export class BrandService {
    * @returns La marca creada.
    */
   async create(createBrandDto: CreateBrandDto, file?: Express.Multer.File) {
-    if (createBrandDto.logo && file)
-      throw new BadRequestException('No puedes enviar un archivo y una URL al mismo tiempo.');
+    const { name } = createBrandDto;
 
-    let logoUrl = createBrandDto.logo;
+    let logo = null;
 
     if (file) {
-      const optimizedImage = await sharp(file.buffer)
-        .resize(500, 500, { fit: 'inside' })
-        .toFormat('webp')
-        .webp({ quality: 80 })
-        .toBuffer();
-
+      const optimizedImage = await this.imageService.optimizeImage(file);
       const fileName = `logos/${Date.now()}-${file.originalname.replace(/\s/g, '_')}.webp`;
-      const { data, error } = await this.supabaseService.getClient().storage
-        .from('brands')
-        .upload(fileName, optimizedImage, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: 'image/webp',
-        });
 
-      if (error) throw new Error('Error al subir la imagen');
-
-      logoUrl = await this.supabaseService.getClient().
-        storage.from('brands').getPublicUrl(data.path).data.publicUrl;
+      logo = await this.supabaseService
+        .uploadFile('brands', fileName, optimizedImage, 'image/webp')
     }
 
     const brand = this.brandRepository.create({
-      ...createBrandDto,
-      logo: logoUrl
-    })
+      name,
+      logo,
+    });
 
     return await this.brandRepository.save(brand);
   }
@@ -70,23 +52,7 @@ export class BrandService {
    * @returns Las marcas que no han sido eliminadas lógicamente.
    */
   async findAll(query: FindAllDto<Brand>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [brands, totalCount] = await this.brandRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: false,
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: brands
-    };
+    return await this.baseService.findAll(this.brandRepository, query);
   }
 
   /**
@@ -95,26 +61,7 @@ export class BrandService {
    * @returns Las marcas que han sido eliminadas lógicamente.
    */
   async findAllSoftDeleted(query: FindAllDto<Brand>) {
-    const { limit, page, orderBy = 'createdAt', orderDirection = 'ASC' } = query;
-    const [brands, totalCount] = await this.brandRepository.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-      order: {
-        [orderBy]: orderDirection
-      },
-      withDeleted: true,
-      where: {
-        deletedAt: Not(IsNull())
-      }
-    });
-
-    return {
-      page,
-      limit,
-      totalCount,
-      hasMore: page * limit < totalCount,
-      data: brands
-    };
+    return await this.baseService.findAllSoftDeleted(this.brandRepository, query);
   }
 
   /**
@@ -123,16 +70,7 @@ export class BrandService {
    * @returns La marca obtenida.
    */
   async findOne(id: string) {
-    const brand = await this.brandRepository.findOne({
-      where: {
-        id,
-      },
-      // relations: [''],
-    });
-
-    if (!brand) throw new BadRequestException('No se encontró la marca solicitada.');
-
-    return brand;
+    return await this.baseService.findOne(id, this.brandRepository);
   }
 
   /**
@@ -143,127 +81,24 @@ export class BrandService {
    * @returns 
    */
   async update(id: string, updateBrandDto: UpdateBrandDto, file?: Express.Multer.File) {
-    const brand = await this.brandRepository.findOne({ where: { id } });
-
-    if (!brand) throw new BadRequestException('No se encontró la marca.');
-
-    if ('logo' in updateBrandDto && file) {
-      throw new BadRequestException('No puedes enviar un archivo y una URL al mismo tiempo.');
-    }
-
-    let logoUrl = brand.logo; // Mantener la imagen actual por defecto
+    const brand = await this.findOne(id);
 
     if (file) {
-      const optimizedImage = await sharp(file.buffer)
-        .resize(500, 500, { fit: 'inside' })
-        .toFormat('webp')
-        .webp({ quality: 80 })
-        .toBuffer();
-
-      const fileName = `logos/${Date.now()}-${file.originalname.replace(/\s/g, '_')}.webp`;
-
-      const { data, error } = await this.supabaseService.getClient().storage
-        .from('brands')
-        .upload(fileName, optimizedImage, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: 'image/webp',
-        });
-
-      if (error) throw new Error('Error al subir la imagen');
-
-      logoUrl = this.supabaseService.getClient().storage.from('brands').getPublicUrl(data.path).data.publicUrl;
-
       if (brand.logo) {
         const oldPath = brand.logo.split('/').pop();
         console.log(`borrar: logos/${oldPath}`);
-        await this.supabaseService.getClient().storage.from('brands').remove([`logos/${oldPath}`]);
+        await this.supabaseService.deleteFile('brands', `logos/${oldPath}`);
       }
+
+      const optimizedImage = await this.imageService.optimizeImage(file);
+      const fileName = `logos/${Date.now()}-${file.originalname.replace(/\s/g, '_')}.webp`;
+
+      brand.logo = await this.supabaseService.uploadFile('brands', fileName, optimizedImage, 'image/webp');
     }
 
-    // Construir solo los datos que se deben actualizar
-    const updatedData: Partial<Brand> = { ...updateBrandDto };
-    if (file || 'logo' in updateBrandDto) {
-      updatedData.logo = logoUrl;
-    }
-
-    this.brandRepository.merge(brand, updateBrandDto, { logo: file || 'logo' in updateBrandDto ? logoUrl : brand.logo });
+    this.brandRepository.merge(brand, updateBrandDto);
 
     return await this.brandRepository.save(brand);
-  }
-
-  /**
-   * Elimina de forma permanente una marca y su imagen del storage.
-   * @param id - Uuid de la marca.
-   * @returns La marca eliminada físicamente.
-   */
-  async hardDelete(id: string) {
-    const brand = await this.brandRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!brand) throw new BadRequestException('No se encontró la marca solicitada.')
-
-    if (brand.logo) {
-      const oldPath = brand.logo.split('/').pop();
-      console.log(`borrar: logos/${oldPath}`);
-      const { error } = await this.supabaseService
-        .getClient()
-        .storage.from('brands')
-        .remove([`logos/${oldPath}`]);
-
-      if (error) {
-        throw new BadRequestException('Error al eliminar la imagen del logo');
-      }
-    }
-
-    return await this.brandRepository.remove(brand);
-  }
-
-  /**
-     * Elimina la marca lógicamente.
-     * @param id - Uuid de la marca.
-     * @returns La marca eliminada lógicamente.
-     */
-  async softDelete(id: string) {
-    const brand = await this.brandRepository.findOne({
-      where: { id },
-      // relations: ['category_type'],
-      withDeleted: true,
-    });
-
-    if (!brand) throw new BadRequestException('No se encontró la marca solicitada.')
-
-
-    if (brand.deletedAt) {
-      throw new UnauthorizedException('El usuario ya fue eliminado');
-    }
-
-    // if (category.category_type.length > 0)
-    //   throw new UnauthorizedException('No se puede borrar una categoría con tipos de categorías asignados');
-
-    return await this.brandRepository.softRemove(brand);
-  }
-
-  /**
-   * Restaura la marca y le quita la eliminación lógica.
-   * @param id - Uuid de la marca.
-   * @returns La marca recuperada.
-   */
-  async restore(id: string) {
-    const brand = await this.brandRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!brand) throw new UnauthorizedException('El tipo de categoría no existe');
-
-    if (!brand.deletedAt) throw new UnauthorizedException('El tipo de categoría no está eliminado');
-
-    await this.brandRepository.restore(id);
-
-    return { message: 'Tipo de categoría restaurada correctamente', brand };
   }
 
   /**
@@ -272,22 +107,75 @@ export class BrandService {
    * @returns La marca con el logo eliminado si es que tiene.
    */
   async deleteImage(id: string) {
-    const brand = await this.brandRepository.findOne({ where: { id } });
-    if (!brand || !brand.logo) {
-      throw new BadRequestException('No hay imagen para eliminar.');
-    }
+    const brand = await this.findOne(id);
+
+    if (!brand.logo) throw new BadRequestException('No hay logo en la marca');
 
     const filePath = brand.logo.split('/').pop();
     console.log(`borrar: logos/${filePath}`);
-    const { error } = await this.supabaseService.getClient()
-      .storage.from('brands')
-      .remove([`logos/${filePath}`]);
-
-    if (error) throw new Error('Error al eliminar la imagen');
+    await this.supabaseService.deleteFile('brands', `logos/${filePath}`);
 
     brand.logo = null;
     await this.brandRepository.save(brand);
 
     return { message: 'Imagen eliminada correctamente', data: brand };
+  }
+
+  /**
+   * Elimina de forma permanente una marca y su imagen del storage.
+   * @param id - Uuid de la marca.
+   * @returns La marca eliminada físicamente.
+   */
+  async hardDelete(id: string) {
+    // Todo: meter una transaccion
+    const brand = await this.findOne(id);
+
+    if (brand.logo) {
+      const oldPath = brand.logo.split('/').pop();
+      console.log(`borrar: logos/${oldPath}`);
+      await this.supabaseService.deleteFile('brands', `logos/${oldPath}`);
+    }
+
+    return await this.baseService.hardDeleteWithRelationsCheck(
+      id,
+      this.brandRepository,
+      async (id) => {
+        return await this.brandRepository
+          .createQueryBuilder('brand')
+          .leftJoin('brand.model', 'model')
+          .where('category.id = :id', { id })
+          .andWhere('model.id IS NOT NULL')
+          .getExists();
+      }
+    );
+  }
+
+  /**
+   * Elimina la marca lógicamente.
+   * @param id - Uuid de la marca.
+   * @returns La marca eliminada lógicamente.
+   */
+  async softDelete(id: string) {
+    return await this.baseService.softDeleteWithRelationsCheck(
+      id,
+      this.brandRepository,
+      async (id) => {
+        return await this.brandRepository
+          .createQueryBuilder('brand')
+          .leftJoin('brand.model', 'model')
+          .where('category.id = :id', { id })
+          .andWhere('model.id IS NOT NULL')
+          .getExists();
+      }
+    );
+  }
+
+  /**
+   * Restaura la marca y le quita la eliminación lógica.
+   * @param id - Uuid de la marca.
+   * @returns La marca recuperada.
+   */
+  async restore(id: string) {
+    return await this.baseService.restore(id, this.brandRepository);
   }
 }

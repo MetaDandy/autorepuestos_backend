@@ -13,5 +13,6 @@ import { BaseService } from '../../services/base/base.service';
   ],
   controllers: [CategoryTypeController],
   providers: [CategoryTypeService, BaseService],
+  exports: [CategoryTypeService]
 })
 export class CategoryTypeModule {}
