@@ -32,7 +32,7 @@ export class Product {
   state: string;
 
   @Column()
-  tecnology: string;
+  technology: string;
 
   @Column()
   material: string;

@@ -14,5 +14,6 @@ import { BaseService } from '../../services/base/base.service';
   ],
   controllers: [ProductTypeController],
   providers: [ProductTypeService, BaseService],
+  exports: [ProductTypeService],
 })
 export class ProductTypeModule {}

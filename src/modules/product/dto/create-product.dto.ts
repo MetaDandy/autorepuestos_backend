@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsBoolean, IsNumber, IsString, IsUUID } from "class-validator";
 
 export class CreateProductDto {
@@ -15,12 +16,14 @@ export class CreateProductDto {
     allowNaN: false,
     maxDecimalPlaces: 2
   })
+  @Type(() => Number)
   price: number;
 
   @IsString()
   color: string;
 
   @IsBoolean()
+  @Type(() => Boolean)
   is_complete: boolean;
 
   @IsString()

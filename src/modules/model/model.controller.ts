@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, Query 
 import { ModelService } from './model.service';
 import { CreateModelDto } from './dto/create-model.dto';
 import { UpdateModelDto } from './dto/update-model.dto';
-import { Permissions } from 'src/decorator/permission/permission.decorator';
+import { Permissions } from '../../decorator/permission/permission.decorator';
 import { PermissionEnum } from '../../enum/permission.enum';
 import { OneImageUploadInterceptor } from '../../decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../../dto/findAll.dto';
 import { Model } from './entities/model.entity';
 import { Public } from '../../decorator/public/public.decorator';
 
