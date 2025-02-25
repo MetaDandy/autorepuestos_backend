@@ -18,6 +18,8 @@ import { ProductTypeModule } from './modules/product_type/product_type.module';
 import { ModelModule } from './modules/model/model.module';
 import { ImageService } from './services/image/image.service';
 import { BaseService } from './services/base/base.service';
+import { ProductModule } from './modules/product/product.module';
+import { CompatibilityModule } from './modules/compatibility/compatibility.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { BaseService } from './services/base/base.service';
     BrandModule,
     ProductTypeModule,
     ModelModule,
+    ProductModule,
+    CompatibilityModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

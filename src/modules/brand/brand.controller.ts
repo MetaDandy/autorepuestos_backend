@@ -56,7 +56,6 @@ export class BrandController {
     @Body() updateBrandDto: UpdateBrandDto,
     @UploadedFile() file?: Express.Multer.File
   ) {
-    console.log(updateBrandDto.logo)
     console.log(file)
     return this.brandService.update(id, updateBrandDto, file);
   }
