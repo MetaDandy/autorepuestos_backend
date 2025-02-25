@@ -1,9 +1,9 @@
+import { Compatibility } from "../../compatibility/entities/compatibility.entity";
 import { Brand } from "../../brand/entities/brand.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Model {
-  //TODO: conectar con compability
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -21,6 +21,9 @@ export class Model {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => Compatibility, (compatibility) => compatibility.model)
+  compatibility: Relation<Compatibility[]>;
 
   @ManyToOne(() => Brand, (brand) => brand.model)
   brand: Relation<Brand>;

@@ -22,5 +22,5 @@ export class Brand {
   deletedAt: Date;
 
   @OneToMany(() => Model, (model) => model.brand)
-  model: Relation<Model>;
+  model: Relation<Model[]>;
 }
