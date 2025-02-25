@@ -84,9 +84,9 @@ export class CategoryService {
       async (id) => {
         return await this.categoryRepository
           .createQueryBuilder('category')
-          .leftJoin('category.category_type', 'categoryType')
+          .leftJoin('category.category_type', 'category_type')
           .where('category.id = :id', { id })
-          .andWhere('categoryType.id IS NOT NULL')
+          .andWhere('category_type.id IS NOT NULL')
           .getExists();
       }
     );
@@ -104,9 +104,9 @@ export class CategoryService {
       async (id) => {
         return await this.categoryRepository
           .createQueryBuilder('category')
-          .leftJoin('category.category_type', 'categoryType')
+          .leftJoin('category.category_type', 'category_type')
           .where('category.id = :id', { id })
-          .andWhere('categoryType.id IS NOT NULL')
+          .andWhere('category_type.id IS NOT NULL')
           .getExists();
       }
     );

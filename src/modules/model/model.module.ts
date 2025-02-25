@@ -17,5 +17,6 @@ import { BrandModule } from '../brand/brand.module';
     ImageService,
     SupabaseService,
   ],
+  exports: [ModelService]
 })
 export class ModelModule { }

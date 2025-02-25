@@ -150,7 +150,19 @@ export class ProductService {
       await this.supabaseService.deleteFile(StorageEnum.PRODUCT_BUCKET, `${StorageEnum.PRODUCT_PRODUCT_FOLDER}/${oldPath}`);
     }
 
-    return await this.productRepository.remove(product);
+    return await this.baseService.hardDeleteWithRelationsCheck(
+      id,
+      this.productRepository,
+      async (id) => {
+        return await this.productRepository
+          .createQueryBuilder('product')
+          .leftJoin('product.compatibility', 'compatibility')
+          .leftJoin('product.product_image', 'product_image')
+          .where('product.id = :id', { id })
+          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**
@@ -159,7 +171,19 @@ export class ProductService {
    * @returns El producto eliminado lógicamente.
    */
   async softDelete(id: string) {
-    return await this.baseService.softDelete(id, this.productRepository);
+    return await this.baseService.softDeleteWithRelationsCheck(
+      id,
+      this.productRepository,
+      async (id) => {
+        return await this.productRepository
+          .createQueryBuilder('product')
+          .leftJoin('product.compatibility', 'compatibility')
+          .leftJoin('product.product_image', 'product_image')
+          .where('product.id = :id', { id })
+          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**

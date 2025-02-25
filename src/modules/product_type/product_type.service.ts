@@ -83,12 +83,18 @@ export class ProductTypeService {
    * @returns El tipo de producto eliminado físicamente.
    */
   async hardDelete(id: string) {
-    const productType = await this.productTypeRepository.findOneOrFail({
-      where: { id },
-      withDeleted: true,
-    });
-
-    return await this.productTypeRepository.remove(productType);
+    return await this.baseService.hardDeleteWithRelationsCheck(
+      id,
+      this.productTypeRepository,
+      async (id) => {
+        return await this.productTypeRepository
+          .createQueryBuilder('product_type')
+          .leftJoin('product_type.category_type', 'product')
+          .where('product_type.id = :id', { id })
+          .andWhere('product.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**
@@ -97,19 +103,18 @@ export class ProductTypeService {
    * @returns El tipo de producto eliminado lógicamente.
    */
   async softDelete(id: string) {
-    const productType = await this.productTypeRepository.findOne({
-      where: { id },
-      withDeleted: true,
-    });
-
-    if (!productType)
-      throw new BadRequestException('No se encuentra el tipo de producto solicitado.')
-
-    if (productType.deletedAt) {
-      throw new BadRequestException('El tipo de producto ya fue eliminado');
-    }
-
-    return await this.productTypeRepository.softRemove(productType);
+    return this.baseService.softDeleteWithRelationsCheck(
+      id,
+      this.productTypeRepository,
+      async (id) => {
+        return await this.productTypeRepository
+          .createQueryBuilder('product_type')
+          .leftJoin('product_type.category_type', 'product')
+          .where('product_type.id = :id', { id })
+          .andWhere('product.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**

@@ -144,7 +144,18 @@ export class ModelService {
       await this.supabaseService.deleteFile('brands', `models/${oldPath}`);
     }
 
-    return await this.modelRepository.remove(model);
+    return await this.baseService.hardDeleteWithRelationsCheck(
+      id,
+      this.modelRepository,
+      async (id) => {
+        return await this.modelRepository
+          .createQueryBuilder('model')
+          .leftJoin('model.compatibility', 'compatibility')
+          .where('category.id = :id', { id })
+          .andWhere('compatibility.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**
@@ -153,7 +164,18 @@ export class ModelService {
    * @returns El modelo eliminado lógicamente.
    */
   async softDelete(id: string) {
-    return await this.baseService.softDelete(id, this.modelRepository);
+    return await this.baseService.softDeleteWithRelationsCheck(
+      id,
+      this.modelRepository,
+      async (id) => {
+        return await this.modelRepository
+          .createQueryBuilder('model')
+          .leftJoin('model.compatibility', 'compatibility')
+          .where('category.id = :id', { id })
+          .andWhere('compatibility.id IS NOT NULL')
+          .getExists();
+      }
+    );
   }
 
   /**

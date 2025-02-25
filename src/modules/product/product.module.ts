@@ -17,5 +17,6 @@ import { ProductTypeModule } from '../product_type/product_type.module';
   ],
   controllers: [ProductController],
   providers: [ProductService, ImageService, BaseService],
+  exports: [ProductService]
 })
 export class ProductModule {}
