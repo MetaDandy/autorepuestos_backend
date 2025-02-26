@@ -20,6 +20,7 @@ import { ImageService } from './services/image/image.service';
 import { BaseService } from './services/base/base.service';
 import { ProductModule } from './modules/product/product.module';
 import { CompatibilityModule } from './modules/compatibility/compatibility.module';
+import { DepositModule } from './modules/deposit/deposit.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CompatibilityModule } from './modules/compatibility/compatibility.modul
     ModelModule,
     ProductModule,
     CompatibilityModule,
+    DepositModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

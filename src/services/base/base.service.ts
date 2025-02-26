@@ -99,6 +99,7 @@ export class BaseService {
   async softDelete<T>(id: string, repository: Repository<T>) {
     const entity = await repository.findOne({
       where: { id } as any,
+      withDeleted: true,
     });
 
     if (!entity) throw new BadRequestException('El registro no existe');
