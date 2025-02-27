@@ -9,5 +9,6 @@ import { BaseService } from '../../services/base/base.service';
   imports: [TypeOrmModule.forFeature([Deposit])],
   controllers: [DepositController],
   providers: [DepositService, BaseService],
+  exports: [DepositService]
 })
 export class DepositModule {}

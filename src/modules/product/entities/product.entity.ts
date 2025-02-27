@@ -2,11 +2,10 @@ import { ProductType } from "../../product_type/entities/product_type.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 import { ProductImage } from "./product_image.entity";
 import { Compatibility } from "../../compatibility/entities/compatibility.entity";
+import { DepositProduct } from "src/modules/deposit_product/entities/deposit_product.entity";
 
 @Entity({ name: 'product' })
-export class Product {
-
-  // TODO: conectar con inventory
+export class Product {  
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -54,6 +53,9 @@ export class Product {
 
   @OneToMany(() => Compatibility, (compatibility) => compatibility.product)
   compatibility: Relation<Compatibility[]>;
+
+  @OneToMany(() => DepositProduct, (deposit_product) => deposit_product.product)
+  deposit_product: Relation<DepositProduct[]>;
 
   @ManyToOne(() => ProductType, (product_type) => product_type.product)
   product_type: Relation<ProductType>;

@@ -21,6 +21,7 @@ import { BaseService } from './services/base/base.service';
 import { ProductModule } from './modules/product/product.module';
 import { CompatibilityModule } from './modules/compatibility/compatibility.module';
 import { DepositModule } from './modules/deposit/deposit.module';
+import { DepositProductModule } from './modules/deposit_product/deposit_product.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { DepositModule } from './modules/deposit/deposit.module';
     ProductModule,
     CompatibilityModule,
     DepositModule,
+    DepositProductModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

@@ -28,7 +28,7 @@ export class CompatibilityService {
     const { model_id, product_id } = createCompatibilityDto;
 
     const model = await this.modelService.findOne(model_id);
-    const product = await this.productService.findOne(product_id);
+    const product = await this.productService.findOneNoRelations(product_id);
 
     const compatibility = this.compatibilityReposiroty.create({
       ...createCompatibilityDto,

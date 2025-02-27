@@ -1,10 +1,8 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'deposit' })
 export class Deposit {
-
-  // Todo: conectar con deposit_product
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -22,4 +20,7 @@ export class Deposit {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(()=> DepositProduct, (deposit_product) => deposit_product.deposit)
+  deposit_product: Relation<DepositProduct[]>;
 }

@@ -85,6 +85,15 @@ export class ProductService {
   }
 
   /**
+   * Obtiene un producto por medio del id sin relaciones.
+   * @param id - Uuid del producto.
+   * @returns El producto obtenido sin relaciones.
+   */
+  async findOneNoRelations(id: string) {
+    return await this.baseService.findOne(id, this.productRepository);
+  }
+
+  /**
    * Actualiza un prodcuto.
    * @param id - Uuid del producto.
    * @param updateBrandDto - Variables necesarias para actualizar un producto.
