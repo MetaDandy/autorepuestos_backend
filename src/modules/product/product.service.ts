@@ -25,7 +25,6 @@ export class ProductService {
     private readonly productTypeService: ProductTypeService,
   ) { }
 
-
   /**
    * Crea un producto.
    * @param createBrandDto - Variables para crear el producto.
@@ -167,8 +166,9 @@ export class ProductService {
           .createQueryBuilder('product')
           .leftJoin('product.compatibility', 'compatibility')
           .leftJoin('product.product_image', 'product_image')
+          .leftJoin('product.deposit_product', 'deposit_product')
           .where('product.id = :id', { id })
-          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL')
+          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
           .getExists();
       }
     );
@@ -185,12 +185,13 @@ export class ProductService {
       this.productRepository,
       async (id) => {
         return await this.productRepository
-          .createQueryBuilder('product')
-          .leftJoin('product.compatibility', 'compatibility')
-          .leftJoin('product.product_image', 'product_image')
-          .where('product.id = :id', { id })
-          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL')
-          .getExists();
+        .createQueryBuilder('product')
+        .leftJoin('product.compatibility', 'compatibility')
+        .leftJoin('product.product_image', 'product_image')
+        .leftJoin('product.deposit_product', 'deposit_product')
+        .where('product.id = :id', { id })
+        .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
+        .getExists();
       }
     );
   }

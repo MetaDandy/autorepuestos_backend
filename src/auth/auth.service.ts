@@ -1,15 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SupabaseService } from '../supabase/supabase.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindAllDto } from '../dto/findAll.dto';
 import { BaseService } from '../services/base/base.service';
+import { ChangePasswordDto } from './dto/change_password.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,9 +27,6 @@ export class AuthService {
   /**
    * TODO: 
    * - No dejar eliminar el usuario si este paso su llave a otra tabla, verificar!!
-   * - Ver el tema del refresh token.
-   * - Ver el tema del token de supabase.
-   * - Ver si factorizamos todo de supabase auth.
    */
   /**
    * Funcion de login.
@@ -61,34 +59,36 @@ export class AuthService {
     const token = this.jswtService.sign(payload, {
       expiresIn: '18h'
     });
-    const refreshToken = this.jswtService.sign(payload, {
-      expiresIn: '7d',
-    });
 
-    user.refresh_token = refreshToken;
     await this.userRepository.save(user);
 
     return {
       token,
-      refresh_token: refreshToken,
     }
   }
-
 
   /**
    * Funcion de creacion de un usuario.
    * Solo el administrador o un usuario con el permiso necesario puede crearlo.
    * @param userDto 
    */
-  //* El usuario creado no tiene refresh porque lo crea otra persona
   async create(userDto: CreateUserDto) {
     const { email, password, name, role_id, address, phone } = userDto;
 
+    const userExist = await this.userRepository.findOne({
+      where: {
+        email,
+      }
+    });
+
+    if (userExist) throw new BadRequestException('El email proporcionado ya tiene una cuenta viculada.')
+
     const { data, error } = await this.supabaseService
       .getClient()
-      .auth.signUp({
+      .auth.admin.createUser({
         email,
         password,
+        email_confirm: true,
       });
 
     if (error) throw new UnauthorizedException(error.message);
@@ -208,5 +208,41 @@ export class AuthService {
    */
   async restore(id: string) {
     return await this.baseService.restore(id, this.userRepository);
+  }
+
+  /**
+   * Cambia la contraseña de un usuario verificando primero la contraseña actual.
+   * @param id - UUID del usuario en tu base de datos.
+   * @param changePasswordDto - Dto donde se encuentran la nueva y antigua contraseña.
+   */
+  async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
+    const { newPassword, oldPassword } = changePasswordDto;
+
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user || !user.supabase_user_id) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    // Verificar la contraseña actual intentando iniciar sesión
+    const { error: signInError } = await this.supabaseService.getClient().auth.signInWithPassword({
+      email: user.email,
+      password: oldPassword,
+    });
+
+    if (signInError) {
+      throw new UnauthorizedException('La contraseña actual es incorrecta');
+    }
+
+    // Si la contraseña es correcta, cambiarla
+    const { error } = await this.supabaseService.getClient().auth.admin.updateUserById(user.supabase_user_id, {
+      password: newPassword,
+    });
+
+    if (error) {
+      throw new Error(`Error al cambiar la contraseña: ${error.message}`);
+    }
+
+    return { message: 'Contraseña actualizada correctamente' };
   }
 }

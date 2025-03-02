@@ -8,10 +8,13 @@ import { User } from './entities/user.entity';
 import { Public } from '../decorator/public/public.decorator';
 import { Permissions } from '../decorator/permission/permission.decorator';
 import { PermissionEnum } from '../enum/permission.enum';
+import { ChangePasswordDto } from './dto/change_password.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  // TODO: ver el tema de los permisos, para que un usuario se edite a si mismo
 
   @Post()
   @Permissions(PermissionEnum.USER_CREATE)
@@ -53,6 +56,12 @@ export class AuthController {
   @Permissions(PermissionEnum.USER_UPDATE)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.authService.update(id, updateUserDto);
+  }
+
+  @Patch('change_password/:id')
+  @Permissions(PermissionEnum.USER_UPDATE)
+  changePassword(@Param('id') id: string, @Body() changePasswordDto: ChangePasswordDto) {
+    return this.authService.changePassword(id, changePasswordDto);
   }
 
   @Delete('hard_delete/:id')

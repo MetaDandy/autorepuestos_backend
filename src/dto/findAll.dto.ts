@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, Min, IsOptional, IsString, IsIn } from 'class-validator';
+import { IsInt, Min, IsOptional, IsString } from 'class-validator';
 import { FindOptionsOrderValue } from 'typeorm';
 
 export class FindAllDto<T> {
@@ -17,7 +17,7 @@ export class FindAllDto<T> {
 
   @IsOptional()
   @IsString()
-  orderBy?: string = 'createdAt';
+  orderBy?: keyof T | string = 'createdAt';
 
   @IsOptional()
   orderDirection?: FindOptionsOrderValue = 'ASC';
