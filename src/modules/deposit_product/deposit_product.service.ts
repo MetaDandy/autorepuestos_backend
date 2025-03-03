@@ -1,12 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepositProduct } from './entities/deposit_product.entity';
-import { DataSource, Repository } from 'typeorm';
-import { BaseService } from 'src/services/base/base.service';
+import { DataSource, In, QueryRunner, Repository } from 'typeorm';
+import { BaseService } from '../../services/base/base.service';
 import { ProductService } from '../product/product.service';
 import { DepositService } from '../deposit/deposit.service';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../../dto/findAll.dto';
 
 @Injectable()
 export class DepositProductService {
@@ -187,37 +187,26 @@ export class DepositProductService {
 
   /**
    * Aumenta stock a un inventario.
+   * @param queryRunner - El QueryRunner de la transacción.
    * @param id - Uuid del inventario con deposito.
    * @param quantity - Cantidad de productos a aumentar.
    * @returns El inventario con mas stock
    */
-  async addStock(id: string, quantity: number) {
+  async addStock(queryRunner: QueryRunner, id: string, quantity: number) {
     if (quantity <= 0) throw new BadRequestException('La cantidad debe ser mayor a 0');
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    const depositProduct = await queryRunner.manager.findOne(DepositProduct, {
+      where: { id },
+      lock: { mode: 'pessimistic_write' },
+    });
 
-    try {
-      const depositProduct = await queryRunner.manager.findOne(DepositProduct, {
-        where: { id },
-        lock: { mode: 'pessimistic_write' },
-      });
+    if (!depositProduct) throw new BadRequestException('Producto no encontrado');
 
-      if (!depositProduct) throw new BadRequestException('Producto no encontrado');
+    depositProduct.stock += quantity;
 
-      depositProduct.stock += quantity;
+    await queryRunner.manager.save<DepositProduct>(depositProduct);
 
-      await queryRunner.manager.save<DepositProduct>(depositProduct);
-      await queryRunner.commitTransaction();
-
-      return depositProduct;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    return depositProduct;
   }
 
   /**
@@ -255,4 +244,23 @@ export class DepositProductService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * Devuelve la busqueda de todo los inventarios con deposito.
+   * @param ids - Uuids de los inventarios con deposito.
+   * @returns Todos los inventarios con deposito.
+   */
+  async findByIds(ids: string[]): Promise<DepositProduct[]> {
+    if (ids.length === 0) return [];
+
+    const products = await this.depositProductRepository.find({
+      where: { id: In(ids) },
+    });
+
+    if (products.length !== ids.length)
+      throw new NotFoundException("Uno o más productos no existen.");
+
+    return products;
+  }
+
 }

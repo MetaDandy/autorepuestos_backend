@@ -24,7 +24,7 @@ export class DepositProduct {
   deletedAt: Date;
 
   @OneToMany(() => IncomeDetail, (income_detail) => income_detail.deposit_product)
-  income_detail: Relation<IncomeDetail>;
+  income_detail: Relation<IncomeDetail[]>;
 
   @ManyToOne(() => Deposit, (deposit) => deposit.deposit_product)
   deposit: Relation<Deposit>;
