@@ -22,6 +22,8 @@ import { ProductModule } from './modules/product/product.module';
 import { CompatibilityModule } from './modules/compatibility/compatibility.module';
 import { DepositModule } from './modules/deposit/deposit.module';
 import { DepositProductModule } from './modules/deposit_product/deposit_product.module';
+import { IncomeNoteModule } from './modules/income_note/income_note.module';
+import { MetricsCodeModule } from './modules/metrics_code/metrics_code.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { DepositProductModule } from './modules/deposit_product/deposit_product.
     CompatibilityModule,
     DepositModule,
     DepositProductModule,
+    IncomeNoteModule,
+    MetricsCodeModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

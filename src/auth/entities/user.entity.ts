@@ -1,5 +1,6 @@
+import { IncomeNote } from "src/modules/income_note/entities/income_note.entity";
 import { Role } from "../../role/entities/role.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 
 @Entity('user')
 export class User {
@@ -9,19 +10,16 @@ export class User {
   @Column({ unique: true })
   supabase_user_id: string;
 
-  @Column({nullable: true})
-  refresh_token: string;
-
   @Column()
   name: string;
-  
+
   @Column({ unique: true })
   email: string;
 
   @Column({ unique: true })
   phone: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   address: string;
 
   @CreateDateColumn()
@@ -32,6 +30,9 @@ export class User {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => IncomeNote, (income_note) => income_note.user)
+  income_note: Relation<IncomeNote[]>
 
   @ManyToOne(() => Role, (role) => role.user)
   role: Relation<Role>;

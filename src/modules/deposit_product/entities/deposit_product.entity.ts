@@ -1,11 +1,12 @@
 import { Product } from "src/modules/product/entities/product.entity";
 import { Deposit } from "../../deposit/entities/deposit.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { IncomeDetail } from "src/modules/income_note/entities/income_detail.entity";
 
 @Entity({ name: 'deposit_product' })
 export class DepositProduct {
 
-  //Todo: conectar con details de: sales, incomes, egress; ver si conectar con stock movement
+  //Todo: conectar con details de: sales, egress; ver si conectar con stock movement
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,6 +22,9 @@ export class DepositProduct {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => IncomeDetail, (income_detail) => income_detail.deposit_product)
+  income_detail: Relation<IncomeDetail>;
 
   @ManyToOne(() => Deposit, (deposit) => deposit.deposit_product)
   deposit: Relation<Deposit>;
