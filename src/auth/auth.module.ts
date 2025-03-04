@@ -16,5 +16,6 @@ import { BaseService } from '../services/base/base.service';
   ],
   controllers: [AuthController],
   providers: [AuthService, SupabaseService, BaseService],
+  exports: [AuthService]
 })
 export class AuthModule { }
