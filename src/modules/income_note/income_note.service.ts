@@ -54,7 +54,7 @@ export class IncomeNoteService {
         details.map(detail => ({
           ...detail,
           income_note: incomeNote,
-          deposit_product: depositProductMap.get(detail.deposit_product_id), // Asocia el producto de depósito correctamente
+          deposit_product: depositProductMap.get(detail.deposit_product_id),
         }))
       );
 
@@ -69,7 +69,10 @@ export class IncomeNoteService {
 
       await queryRunner.commitTransaction();
 
-      return { incomeNote, incomeDetails };
+      console.log('id', incomeNote.id)
+      const income = await this.findOne(incomeNote.id);
+
+      return income;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -93,6 +96,15 @@ export class IncomeNoteService {
    * @returns El inventario con deposito obtenido.
    */
   async findOne(id: string) {
-    return await this.baseService.findOne(id, this.incomeNoteRepository, ['income_detail']);
+    return await this.baseService.findOne(
+      id,
+      this.incomeNoteRepository,
+      [
+        'income_detail',
+        'income_detail.deposit_product',
+        'income_detail.deposit_product.deposit',
+        'income_detail.deposit_product.product'
+      ]
+    );
   }
 }

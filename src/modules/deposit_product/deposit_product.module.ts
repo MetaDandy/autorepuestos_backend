@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DepositProduct } from './entities/deposit_product.entity';
 import { ProductModule } from '../product/product.module';
 import { DepositModule } from '../deposit/deposit.module';
-import { BaseService } from 'src/services/base/base.service';
+import { BaseService } from '../../services/base/base.service';
 
 @Module({
   imports: [
@@ -15,5 +15,6 @@ import { BaseService } from 'src/services/base/base.service';
   ],
   controllers: [DepositProductController],
   providers: [DepositProductService, BaseService],
+  exports: [DepositProductService]
 })
 export class DepositProductModule {}
