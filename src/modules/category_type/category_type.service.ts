@@ -72,6 +72,9 @@ export class CategoryTypeService {
   async update(id: string, updateCategoryTypeDto: UpdateCategoryTypeDto) {
     const categoryType = await this.findOne(id);
 
+    if (updateCategoryTypeDto.category_id && categoryType.category.id !== updateCategoryTypeDto.category_id)
+      categoryType.category = await this.categoryService.findOne(updateCategoryTypeDto.category_id);
+
     this.categoryTypeRepository.merge(categoryType, updateCategoryTypeDto);
 
     return await this.categoryTypeRepository.save(categoryType);

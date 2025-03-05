@@ -27,6 +27,7 @@ export class AuthService {
   /**
    * TODO: 
    * - No dejar eliminar el usuario si este paso su llave a otra tabla, verificar!!
+   * - Rehacer el create y meter validaciones a los delete
    */
   /**
    * Funcion de login.
@@ -148,6 +149,18 @@ export class AuthService {
    */
   async update(id: string, updateAuthDto: UpdateUserDto) {
     const user = await this.findOne(id);
+
+    if (updateAuthDto.role_id) {
+      const role = await this.roleRepository.findOne({
+        where: {
+          id: updateAuthDto.role_id
+        }
+      });
+
+      if (!role) throw new BadRequestException('Rol no encontrado');
+
+      user.role = role;
+    }
 
     this.userRepository.merge(user, updateAuthDto);
 

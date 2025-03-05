@@ -21,4 +21,8 @@ export class FindAllDto<T> {
 
   @IsOptional()
   orderDirection?: FindOptionsOrderValue = 'ASC';
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

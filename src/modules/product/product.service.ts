@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { ProductImage } from './entities/product_image.entity';
 import { ImageService } from '../../services/image/image.service';
 import { BaseService } from '../../services/base/base.service';
@@ -62,7 +62,33 @@ export class ProductService {
    * @returns Los productos que no han sido eliminadas lógicamente.
    */
   async findAll(query: FindAllDto<Product>) {
-    return await this.baseService.findAll(this.productRepository, query, ['product_type']);
+    const { page, limit, orderBy, orderDirection, search } = query;
+
+    const whereConditions = search
+      ? [
+        { name: ILike(`%${search}%`) },
+        { color: ILike(`%${search}%`) },
+        { state: ILike(`%${search}%`) },
+        { technology: ILike(`%${search}%`) },
+        { material: ILike(`%${search}%`) },
+      ]
+      : [];
+
+    const [items, total] = await this.productRepository.findAndCount({
+      where: whereConditions.length ? whereConditions : undefined,
+      take: limit,
+      skip: (page - 1) * limit,
+      order: { [orderBy]: orderDirection },
+      relations: ['product_type'],
+    });
+
+    return {
+      data: items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   /**
@@ -185,13 +211,13 @@ export class ProductService {
       this.productRepository,
       async (id) => {
         return await this.productRepository
-        .createQueryBuilder('product')
-        .leftJoin('product.compatibility', 'compatibility')
-        .leftJoin('product.product_image', 'product_image')
-        .leftJoin('product.deposit_product', 'deposit_product')
-        .where('product.id = :id', { id })
-        .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
-        .getExists();
+          .createQueryBuilder('product')
+          .leftJoin('product.compatibility', 'compatibility')
+          .leftJoin('product.product_image', 'product_image')
+          .leftJoin('product.deposit_product', 'deposit_product')
+          .where('product.id = :id', { id })
+          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
+          .getExists();
       }
     );
   }
