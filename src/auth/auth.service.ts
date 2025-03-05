@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SupabaseService } from '../supabase/supabase.service';
 import { JwtService } from '@nestjs/jwt';
@@ -93,18 +93,24 @@ export class AuthService {
 
     if (error) throw new UnauthorizedException(error.message);
 
-    const role = await this.roleRepository.findOneBy({ id: role_id });
+    try {
+      const role = await this.roleRepository.findOneBy({ id: role_id });
 
-    const user = this.userRepository.create({
-      supabase_user_id: data.user.id,
-      email,
-      role: role,
-      name,
-      address,
-      phone
-    });
+      const user = this.userRepository.create({
+        supabase_user_id: data.user.id,
+        email,
+        role: role,
+        name,
+        address,
+        phone
+      });
 
-    return await this.userRepository.save(user);
+      return await this.userRepository.save(user);
+    } catch (dbError) {
+      // Si hay un error al guardar en la base de datos, eliminamos el usuario de Supabase
+      await this.supabaseService.getClient().auth.admin.deleteUser(data.user.id);
+      throw new InternalServerErrorException('Error al guardar el usuario en la base de datos.');
+    }
   }
 
   /**
@@ -176,7 +182,7 @@ export class AuthService {
       throw new Error(`Failed to delete user in Supabase: ${error.message}`);
     }
 
-    return await this.userRepository.remove(user);
+    return await this.baseService.hardDelete(id, this.userRepository);
   }
 
   /**

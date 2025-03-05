@@ -67,7 +67,7 @@ export class AuthController {
   @Delete('hard_delete/:id')
   @Permissions(PermissionEnum.USER_HARD_DELETE)
   hardDelete(@Param('id') id: string) {
-    return this.authService.softDelete(id);
+    return this.authService.hardDelete(id);
   }
 
   @Delete('soft_delete/:id')
