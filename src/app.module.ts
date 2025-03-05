@@ -25,6 +25,7 @@ import { DepositProductModule } from './modules/deposit_product/deposit_product.
 import { IncomeNoteModule } from './modules/income_note/income_note.module';
 import { MetricsCodeModule } from './modules/metrics_code/metrics_code.module';
 import { EgressNoteModule } from './modules/egress_note/egress_note.module';
+import { SaleNoteModule } from './modules/sale_note/sale_note.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { EgressNoteModule } from './modules/egress_note/egress_note.module';
     IncomeNoteModule,
     MetricsCodeModule,
     EgressNoteModule,
+    SaleNoteModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

@@ -243,6 +243,7 @@ export class DepositProductService {
 
     const products = await this.depositProductRepository.find({
       where: { id: In(ids) },
+      relations: ['product']
     });
 
     if (products.length !== ids.length)
