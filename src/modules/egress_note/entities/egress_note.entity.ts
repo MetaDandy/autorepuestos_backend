@@ -1,9 +1,9 @@
 import { User } from "../../../auth/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { IncomeDetail } from "./income_detail.entity";
+import { EgressDetail } from "./egress_detail.entity";
 
-@Entity({ name: 'income_note' })
-export class IncomeNote {
+@Entity({ name: 'egress_note' })
+export class EgressNote {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -25,9 +25,9 @@ export class IncomeNote {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => IncomeDetail, (income_detail) => income_detail.income_note)
-  income_detail: Relation<IncomeDetail[]>;
+  @OneToMany(()=> EgressDetail, (egress_detail)=> egress_detail.egress_note)
+  egress_detail: Relation<EgressDetail[]>;
 
-  @ManyToOne(() => User, (user) => user.income_note)
-  user: Relation<User>
+  @ManyToOne(()=> User, (user)=> user.egress_note)
+  user: Relation<User>;
 }

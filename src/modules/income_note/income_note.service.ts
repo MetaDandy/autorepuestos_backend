@@ -8,6 +8,8 @@ import { BaseService } from '../../services/base/base.service';
 import { DepositProductService } from '../deposit_product/deposit_product.service';
 import { AuthService } from '../../auth/auth.service';
 import { FindAllDto } from '../../dto/findAll.dto';
+import { MetricsCodeService } from '../metrics_code/metrics_code.service';
+import { MetricsCodeEnum } from '../../enum/metrics_code.enum';
 
 @Injectable()
 export class IncomeNoteService {
@@ -19,6 +21,7 @@ export class IncomeNoteService {
     private readonly baseService: BaseService,
     private readonly depositProductService: DepositProductService,
     private readonly userService: AuthService,
+    private readonly metricsCodeService: MetricsCodeService,
     private readonly dataSource: DataSource,
   ) { }
 
@@ -40,6 +43,7 @@ export class IncomeNoteService {
       const incomeNote = this.incomeNoteRepository.create({
         description,
         user,
+        code: await this.metricsCodeService.addMetric(MetricsCodeEnum.INCOME, queryRunner),
         total: details.reduce((sum, item) => sum + item.total, 0),
       });
       await queryRunner.manager.save<IncomeNote>(incomeNote);
@@ -69,7 +73,6 @@ export class IncomeNoteService {
 
       await queryRunner.commitTransaction();
 
-      console.log('id', incomeNote.id)
       const income = await this.findOne(incomeNote.id);
 
       return income;

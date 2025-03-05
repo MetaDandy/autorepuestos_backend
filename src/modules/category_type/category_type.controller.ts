@@ -2,8 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CategoryTypeService } from './category_type.service';
 import { CreateCategoryTypeDto } from './dto/create-category_type.dto';
 import { UpdateCategoryTypeDto } from './dto/update-category_type.dto';
-import { Permissions } from 'src/decorator/permission/permission.decorator';
-import { PermissionEnum } from 'src/enum/permission.enum';
+import { Permissions } from '../../decorator/permission/permission.decorator';
+import { PermissionEnum } from '../../enum/permission.enum';
 import { Public } from '../../decorator/public/public.decorator';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { CategoryType } from './entities/category_type.entity';

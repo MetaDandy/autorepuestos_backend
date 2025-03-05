@@ -3,7 +3,7 @@ import { CreateMetricsCodeDto } from './dto/create-metrics_code.dto';
 import { UpdateMetricsCodeDto } from './dto/update-metrics_code.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MetricsCode } from './entities/metrics_code.entity';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { BaseService } from '../../services/base/base.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 
@@ -88,28 +88,26 @@ export class MetricsCodeService {
   }
 
   /**
-   * Genera un código a partir de un documento. 
+   * Genera un código a partir de un documento dentro de una transacción.
    * @param document - El nombre del documento a buscar.
+   * @param queryRunner - El QueryRunner de la transacción.
    * @returns El código generado para ese documento.
    */
-  async addMetric(document: string) {
-    const metricsCode = await this.metricsCodeRepository.findOne({
-      where: {
-        document,
-      }
+  async addMetric(document: string, queryRunner: QueryRunner) {
+    const metricsCode = await queryRunner.manager.findOne(MetricsCode, {
+      where: { document },
+      lock: { mode: 'pessimistic_write' },
     });
 
-    if (!metricsCode) throw new BadRequestException('Metrica no encontrada');
+    if (!metricsCode) throw new BadRequestException('Métrica no encontrada');
 
     metricsCode.last_number = String(Number(metricsCode.last_number) + 1);
 
     const { last_number, prefix, zeros } = metricsCode;
-
     const paddedNumber = last_number.padStart(zeros, '0');
-
     const code = `${prefix}-${paddedNumber}`;
 
-    await this.metricsCodeRepository.save(metricsCode);
+    await queryRunner.manager.save<MetricsCode>(metricsCode);
 
     return code;
   }

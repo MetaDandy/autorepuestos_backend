@@ -10,7 +10,6 @@ export class MetricsCodeController {
   constructor(private readonly metricsCodeService: MetricsCodeService) { }
 
   //TODO: agregar nuevos permisos y rehacer el rol del admin
-  // borrar get code
 
   @Post()
   create(@Body() createMetricsCodeDto: CreateMetricsCodeDto) {
@@ -30,11 +29,6 @@ export class MetricsCodeController {
   @Get('soft')
   findAllSoftDeleted(@Query() findAllDto: FindAllDto<MetricsCode>) {
     return this.metricsCodeService.findAllSoftDeleted(findAllDto);
-  }
-
-  @Get('code/:document')
-  getCode(@Param('document') document: string) {
-    return this.metricsCodeService.addMetric(document)
   }
 
   @Get(':id')

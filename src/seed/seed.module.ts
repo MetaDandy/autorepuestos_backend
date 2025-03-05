@@ -10,6 +10,8 @@ import { MainSeeder } from './main.seed';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from '../config/db.config';
+import { MetricsCode } from '../modules/metrics_code/entities/metrics_code.entity';
+import { MetricsCodeSeeder } from './metrics_code.seed';
 
 @Module({
   imports: [
@@ -21,10 +23,21 @@ import dbConfig from '../config/db.config';
     TypeOrmModule.forRootAsync({
       useFactory: dbConfig
     }),
-    TypeOrmModule.forFeature([Permission, Role, User]),
+    TypeOrmModule.forFeature([
+      Permission, 
+      Role, 
+      User,
+      MetricsCode
+    ]),
     SupabaseModule
   ],
-  providers: [PermissionSeeder, RoleSeeder, UserSeeder, MainSeeder],
+  providers: [
+    PermissionSeeder, 
+    RoleSeeder, 
+    UserSeeder, 
+    MetricsCodeSeeder,
+    MainSeeder,
+  ],
   exports: [MainSeeder]
 })
 export class SeedModule { }

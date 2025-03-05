@@ -24,6 +24,7 @@ import { DepositModule } from './modules/deposit/deposit.module';
 import { DepositProductModule } from './modules/deposit_product/deposit_product.module';
 import { IncomeNoteModule } from './modules/income_note/income_note.module';
 import { MetricsCodeModule } from './modules/metrics_code/metrics_code.module';
+import { EgressNoteModule } from './modules/egress_note/egress_note.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { MetricsCodeModule } from './modules/metrics_code/metrics_code.module';
     DepositProductModule,
     IncomeNoteModule,
     MetricsCodeModule,
+    EgressNoteModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, ImageService, BaseService],

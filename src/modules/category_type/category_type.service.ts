@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryType } from './entities/category_type.entity';
 import { Repository } from 'typeorm';
 import { CategoryService } from '../category/category.service';
-import { FindAllDto } from 'src/dto/findAll.dto';
-import { BaseService } from 'src/services/base/base.service';
+import { FindAllDto } from '../../dto/findAll.dto';
+import { BaseService } from '../../services/base/base.service';
 
 @Injectable()
 export class CategoryTypeService {

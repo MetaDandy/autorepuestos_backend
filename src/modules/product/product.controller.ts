@@ -7,7 +7,7 @@ import { PermissionEnum } from '../../enum/permission.enum';
 import { OneImageUploadInterceptor } from '../../decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
 import { Public } from '../../decorator/public/public.decorator';
 import { Product } from './entities/product.entity';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../../dto/findAll.dto';
 import { MultipleImagesUploadInterceptor } from '../../decorator/multiple_images_upload_interceptor/multiple_images_upload_interceptor.decorator';
 
 @Controller('product')

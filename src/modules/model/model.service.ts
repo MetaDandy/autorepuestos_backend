@@ -8,7 +8,7 @@ import { SupabaseService } from '../../supabase/supabase.service';
 import { ImageService } from '../../services/image/image.service';
 import { BrandService } from '../brand/brand.service';
 import { FindAllDto } from '../../dto/findAll.dto';
-import { BaseService } from 'src/services/base/base.service';
+import { BaseService } from '../../services/base/base.service';
 
 @Injectable()
 export class ModelService {

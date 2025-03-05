@@ -9,5 +9,6 @@ import { BaseService } from '../../services/base/base.service';
   imports: [TypeOrmModule.forFeature([MetricsCode])],
   controllers: [MetricsCodeController],
   providers: [MetricsCodeService, BaseService],
+  exports: [MetricsCodeService]
 })
 export class MetricsCodeModule {}

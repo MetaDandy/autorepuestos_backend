@@ -4,7 +4,7 @@ import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product_image.entity';
-import { SupabaseModule } from 'src/supabase/supabase.module';
+import { SupabaseModule } from '../../supabase/supabase.module';
 import { ImageService } from '../../services/image/image.service';
 import { BaseService } from '../../services/base/base.service';
 import { ProductTypeModule } from '../product_type/product_type.module';

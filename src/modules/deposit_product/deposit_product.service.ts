@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepositProduct } from './entities/deposit_product.entity';
-import { DataSource, In, QueryRunner, Repository } from 'typeorm';
+import { In, QueryRunner, Repository } from 'typeorm';
 import { BaseService } from '../../services/base/base.service';
 import { ProductService } from '../product/product.service';
 import { DepositService } from '../deposit/deposit.service';
@@ -16,7 +16,6 @@ export class DepositProductService {
     private readonly baseService: BaseService,
     private readonly productService: ProductService,
     private readonly depositService: DepositService,
-    private readonly dataSource: DataSource,
   ) { }
 
   /**
@@ -211,38 +210,27 @@ export class DepositProductService {
 
   /**
    * Disminuye stock a un inventario.
+   * @param queryRunner - El QueryRunner de la transacción.
    * @param id - Uuid del inventario con deposito.
    * @param quantity - Cantidad de productos a disminuir.
    * @returns El inventario con menos stock
    */
-  async substractStock(id: string, quantity: number) {
+  async substractStock(queryRunner: QueryRunner, id: string, quantity: number) {
     if (quantity <= 0) throw new BadRequestException('La cantidad debe ser mayor a 0');
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    const depositProduct = await queryRunner.manager.findOne(DepositProduct, {
+      where: { id },
+      lock: { mode: 'pessimistic_write' },
+    });
 
-    try {
-      const depositProduct = await queryRunner.manager.findOne(DepositProduct, {
-        where: { id },
-        lock: { mode: 'pessimistic_write' },
-      });
+    if (!depositProduct) throw new BadRequestException('Producto no encontrado');
+    if (depositProduct.stock < quantity) throw new BadRequestException('No hay suficiente stock');
 
-      if (!depositProduct) throw new BadRequestException('Producto no encontrado');
-      if (depositProduct.stock < quantity) throw new BadRequestException('No hay suficiente stock');
+    depositProduct.stock -= quantity;
 
-      depositProduct.stock -= quantity;
-
-      await queryRunner.manager.save<DepositProduct>(depositProduct);
-      await queryRunner.commitTransaction();
-
-      return depositProduct;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    await queryRunner.manager.save<DepositProduct>(depositProduct);
+    
+    return depositProduct;
   }
 
   /**

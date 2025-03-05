@@ -1,6 +1,7 @@
-import { IncomeNote } from "src/modules/income_note/entities/income_note.entity";
+import { IncomeNote } from "../../modules/income_note/entities/income_note.entity";
 import { Role } from "../../role/entities/role.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { EgressNote } from "../../modules/egress_note/entities/egress_note.entity";
 
 @Entity('user')
 export class User {
@@ -33,6 +34,9 @@ export class User {
 
   @OneToMany(() => IncomeNote, (income_note) => income_note.user)
   income_note: Relation<IncomeNote[]>
+
+  @OneToMany(()=> EgressNote, (egress_note)=>egress_note.user)
+  egress_note: Relation<EgressNote[]>;
 
   @ManyToOne(() => Role, (role) => role.user)
   role: Relation<Role>;

@@ -3,11 +3,11 @@ import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { Permissions } from '../../decorator/permission/permission.decorator';
-import { PermissionEnum } from 'src/enum/permission.enum';
-import { Public } from 'src/decorator/public/public.decorator';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { PermissionEnum } from '../../enum/permission.enum';
+import { Public } from '../../decorator/public/public.decorator';
+import { FindAllDto } from '../../dto/findAll.dto';
 import { Brand } from './entities/brand.entity';
-import { OneImageUploadInterceptor } from 'src/decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
+import { OneImageUploadInterceptor } from '../../decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
 
 @Controller('brand')
 export class BrandController {

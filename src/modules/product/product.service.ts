@@ -9,8 +9,8 @@ import { ImageService } from '../../services/image/image.service';
 import { BaseService } from '../../services/base/base.service';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { ProductTypeService } from '../product_type/product_type.service';
-import { FindAllDto } from 'src/dto/findAll.dto';
-import { StorageEnum } from 'src/enum/storage.enum';
+import { FindAllDto } from '../../dto/findAll.dto';
+import { StorageEnum } from '../../enum/storage.enum';
 
 @Injectable()
 export class ProductService {

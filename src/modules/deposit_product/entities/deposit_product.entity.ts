@@ -1,12 +1,13 @@
-import { Product } from "src/modules/product/entities/product.entity";
+import { Product } from "../../product/entities/product.entity";
 import { Deposit } from "../../deposit/entities/deposit.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { IncomeDetail } from "src/modules/income_note/entities/income_detail.entity";
+import { IncomeDetail } from "../../income_note/entities/income_detail.entity";
+import { EgressDetail } from "../../egress_note/entities/egress_detail.entity";
 
 @Entity({ name: 'deposit_product' })
 export class DepositProduct {
 
-  //Todo: conectar con details de: sales, egress; ver si conectar con stock movement
+  //Todo: conectar con details de: sales; ver si conectar con stock movement
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -25,6 +26,9 @@ export class DepositProduct {
 
   @OneToMany(() => IncomeDetail, (income_detail) => income_detail.deposit_product)
   income_detail: Relation<IncomeDetail[]>;
+
+  @OneToMany(()=> EgressDetail, (egress_detail)=> egress_detail.deposit_product)
+  egress_detail: Relation<EgressDetail[]>;
 
   @ManyToOne(() => Deposit, (deposit) => deposit.deposit_product)
   deposit: Relation<Deposit>;

@@ -6,7 +6,7 @@ import { Role } from './entities/role.entity';
 import { In, Repository } from 'typeorm';
 import { Permission } from './entities/permission.entity';
 import { FindAllDto } from '../dto/findAll.dto';
-import { BaseService } from 'src/services/base/base.service';
+import { BaseService } from '../services/base/base.service';
 
 @Injectable()
 export class RoleService {

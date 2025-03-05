@@ -4,7 +4,7 @@ import { CreateProductTypeDto } from './dto/create-product_type.dto';
 import { UpdateProductTypeDto } from './dto/update-product_type.dto';
 import { Permissions } from '../../decorator/permission/permission.decorator';
 import { PermissionEnum } from '../../enum/permission.enum';
-import { FindAllDto } from 'src/dto/findAll.dto';
+import { FindAllDto } from '../../dto/findAll.dto';
 import { ProductType } from './entities/product_type.entity';
 import { Public } from '../../decorator/public/public.decorator';
 

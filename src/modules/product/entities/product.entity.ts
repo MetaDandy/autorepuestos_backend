@@ -2,7 +2,7 @@ import { ProductType } from "../../product_type/entities/product_type.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 import { ProductImage } from "./product_image.entity";
 import { Compatibility } from "../../compatibility/entities/compatibility.entity";
-import { DepositProduct } from "src/modules/deposit_product/entities/deposit_product.entity";
+import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
 
 @Entity({ name: 'product' })
 export class Product {  
