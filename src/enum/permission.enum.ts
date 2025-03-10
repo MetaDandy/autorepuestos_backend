@@ -142,4 +142,12 @@ export enum PermissionEnum {
   BRAND_SOFT_DELETE = 'brand.soft_delete',
   BRAND_HARD_DELETE = 'brand.hard_delete',
   BRAND_RESTORE = 'brand.restore',
+
+  // Metricas
+  METRICS_CREATE = 'metrics.create',
+  METRICS_READ = 'metrics.read',
+  METRICS_UPDATE = 'metrics.update',
+  METRICS_SOFT_DELETE = 'metrics.soft_delete',
+  METRICS_HARD_DELETE = 'metrics.hard_delete',
+  METRICS_RESTORE = 'metrics.restore',
 }

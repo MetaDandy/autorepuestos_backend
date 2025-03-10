@@ -16,7 +16,7 @@ export class UserSeeder {
   ) { }
 
   async syncAdminUser() {
-    const existingUser = await this.userRepository.findOne({ where: { email: 'admin@example.com' } });
+    const existingUser = await this.userRepository.findOne({ where: { email: process.env.ADMIN_EMAIL } });
 
     if (existingUser) {
       console.log('⚠️ El usuario Admin ya existe.');
@@ -32,8 +32,8 @@ export class UserSeeder {
 
     // 🔹 Crear usuario en Supabase
     const { data, error } = await this.supabaseService.getClient().auth.admin.createUser({
-      email: 'admin@example.com',
-      password: 'admin123',
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
       email_confirm: true, // Confirma el email automáticamente
     });
 
@@ -46,8 +46,8 @@ export class UserSeeder {
     const newUser = this.userRepository.create({
       supabase_user_id: data.user.id,
       email: data.user.email,
-      name: 'Administrador',
-      phone: '77563321',
+      name: process.env.ADMIN_NAME,
+      phone: process.env.ADMIN_PHONE,
       address: '',
       role: adminRole,
     });
