@@ -23,13 +23,16 @@ export class BaseService {
   ) {
     const { limit, page, orderBy, orderDirection } = query;
 
+    const orderField = orderBy || 'createdAt'
+
     const [data, totalCount] = await repository.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
       relations: relations.length > 0 ? relations : undefined,
       order: {
-        [orderBy]: orderDirection || 'ASC'
-      } as any,
+        [orderField]: orderDirection || 'ASC',
+        id: 'ASC', // ← criterio secundario para garantizar orden estable
+      } as any,      
       ...options,
     });
 

@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
 import { SaleNote } from "./sale_note.entity";
-import { DepositProduct } from "src/modules/deposit_product/entities/deposit_product.entity";
+import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
 
 @Entity({ name: 'sale_detail' })
 export class SaleDetail {
