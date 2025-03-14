@@ -9,13 +9,13 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @Column()
   description: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
