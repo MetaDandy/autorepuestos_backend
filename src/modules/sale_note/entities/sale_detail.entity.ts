@@ -14,10 +14,14 @@ export class SaleDetail {
   total: number;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
-  discount: number;
+  price: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  total_discount: number;
+  @Column({ type: "int" })
+  stock_before: number;
+
+  @Column({ type: "int" })
+  stock_after: number;
+
 
   @CreateDateColumn()
   createdAt: Date;

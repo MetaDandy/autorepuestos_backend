@@ -10,15 +10,13 @@ class SaleDetailDto {
   quantity: number;
 
   @IsNumber()
-  discount: number;
+  @IsPositive()
+  price: number;
 }
 
 export class CreateSaleNoteDto {
   @IsString()
   description: string;
-  
-  @IsNumber()
-  discount: number;
   
   @IsArray()
   @ValidateNested({ each: true })

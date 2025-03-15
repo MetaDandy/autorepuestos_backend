@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSaleNoteDto } from './dto/create-sale_note.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SaleNote } from './entities/sale_note.entity';
@@ -33,7 +33,7 @@ export class SaleNoteService {
    */
   async create(createSaleNoteDto: CreateSaleNoteDto, user_id: string) {
     const user = await this.userService.findOne(user_id);
-    const { description, details, discount: globalDiscount } = createSaleNoteDto;
+    const { description, details } = createSaleNoteDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -41,7 +41,6 @@ export class SaleNoteService {
 
     try {
       let total = 0;
-      let totalDiscountAmount = 0;
 
       const depositProductIds = [...new Set(details.map(detail => detail.deposit_product_id))];
       const depositProducts = await this.depositProductService.findByIds(depositProductIds);
@@ -50,37 +49,40 @@ export class SaleNoteService {
       const saleDetails = details.map(item => {
         const product = productMap.get(item.deposit_product_id);
 
-        const productTotal = product.product.price * item.quantity;
-        const discountAmount = productTotal * (item.discount / 100);
-        const totalWithDiscount = productTotal - discountAmount; // Precio final con descuento aplicado
+        const productTotal = item.price * item.quantity;
 
         total += productTotal;
-        totalDiscountAmount += totalWithDiscount;
 
         return this.saleDetailRepository.create({
           ...item,
           total: productTotal,
-          total_discount: totalWithDiscount,
           sale_note: null, // Se asignará después
           deposit_product: product,
         });
       });
 
-      const globalDiscountAmount = totalDiscountAmount * (globalDiscount / 100);
-      const totalAfterGlobalDiscount = totalDiscountAmount - globalDiscountAmount;
-
       const saleNote = this.saleNoteRepository.create({
         description,
         user,
         code: await this.metricsCodeService.addMetric(MetricsCodeEnum.SALE, queryRunner),
-        total: totalDiscountAmount, // Monto total antes del descuento global
-        discount: globalDiscount,
-        total_discount: totalAfterGlobalDiscount, // Total con descuento global aplicado
+        total,
+        sale_detail: saleDetails,
       });
 
       await queryRunner.manager.save<SaleNote>(saleNote);
 
-      saleDetails.forEach(detail => detail.sale_note = saleNote);
+      for (const detail of saleDetails) {
+        const product = detail.deposit_product;
+        detail.sale_note = saleNote;
+
+        detail.stock_before = product.stock;
+        detail.stock_after = product.stock - detail.quantity;
+
+        if (detail.stock_after < 0) {
+          throw new BadRequestException(`Stock insuficiente para el producto: ${product.id}`);
+        }
+      }
+
       await queryRunner.manager.save<SaleDetail>(saleDetails);
 
       for (const detail of saleDetails) {

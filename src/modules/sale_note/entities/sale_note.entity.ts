@@ -16,12 +16,6 @@ export class SaleNote {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   total: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  discount: number;
-
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  total_discount: number;
-
   @CreateDateColumn()
   createdAt: Date;
 
