@@ -4,14 +4,18 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMan
 import { IncomeDetail } from "../../income_note/entities/income_detail.entity";
 import { EgressDetail } from "../../egress_note/entities/egress_detail.entity";
 import { SaleDetail } from "../../sale_note/entities/sale_detail.entity";
+import { Characteristic } from "../../characteristics/entities/characteristic.entity";
 
 @Entity({ name: 'deposit_product' })
 export class DepositProduct {
-
-  //Todo: ver si conectar con stock movement
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  product_code: string;
+
+  @Column()
+  characteristic_code: string;
 
   @Column()
   stock: number;
@@ -39,4 +43,7 @@ export class DepositProduct {
 
   @ManyToOne(() => Product, (product) => product.deposit_product)
   product: Relation<Product>;
+
+  @ManyToOne(() => Characteristic, (characteristic) => characteristic.deposit_product)
+  characteristic: Relation<Characteristic>;
 }

@@ -6,12 +6,14 @@ import { DepositProduct } from './entities/deposit_product.entity';
 import { ProductModule } from '../product/product.module';
 import { DepositModule } from '../deposit/deposit.module';
 import { BaseService } from '../../services/base/base.service';
+import { CharacteristicsModule } from '../characteristics/characteristics.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([DepositProduct]),
     ProductModule,
-    DepositModule
+    DepositModule,
+    CharacteristicsModule
   ],
   controllers: [DepositProductController],
   providers: [DepositProductService, BaseService],

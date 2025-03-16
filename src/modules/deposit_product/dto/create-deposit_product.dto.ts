@@ -6,4 +6,7 @@ export class CreateDepositProductDto {
 
   @IsUUID()
   deposit_id: string;
+
+  @IsUUID()
+  characteristic_id: string;
 }

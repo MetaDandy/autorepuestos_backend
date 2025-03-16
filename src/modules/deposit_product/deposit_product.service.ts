@@ -7,6 +7,7 @@ import { BaseService } from '../../services/base/base.service';
 import { ProductService } from '../product/product.service';
 import { DepositService } from '../deposit/deposit.service';
 import { FindAllDto } from '../../dto/findAll.dto';
+import { CharacteristicsService } from '../characteristics/characteristics.service';
 
 @Injectable()
 export class DepositProductService {
@@ -16,6 +17,7 @@ export class DepositProductService {
     private readonly baseService: BaseService,
     private readonly productService: ProductService,
     private readonly depositService: DepositService,
+    private readonly characteristicService: CharacteristicsService,
   ) { }
 
   /**
@@ -24,15 +26,17 @@ export class DepositProductService {
    * @returns El inventario en un deposito creado con stock 0.
    */
   async create(createDepositProductDto: CreateDepositProductDto) {
-    const { deposit_id, product_id } = createDepositProductDto;
+    const { deposit_id, product_id, characteristic_id } = createDepositProductDto;
+    
+    const existingDepositProduct = await this.depositProductRepository.findOne({
+      where: { deposit: { id: deposit_id }, product: { id: product_id }, characteristic: { id : characteristic_id } },
+      withDeleted: true,
+    });
 
     const product = await this.productService.findOneNoRelations(product_id);
     const deposit = await this.depositService.findOne(deposit_id);
+    const characteristic = await this.characteristicService.findOne(characteristic_id);
 
-    const existingDepositProduct = await this.depositProductRepository.findOne({
-      where: { deposit: { id: deposit_id }, product: { id: product_id } },
-      withDeleted: true,
-    });
 
     if (existingDepositProduct)
       throw new BadRequestException('El producto ya está registrado en este depósito.');
@@ -40,6 +44,9 @@ export class DepositProductService {
     return await this.depositProductRepository.save({
       deposit,
       product,
+      characteristic,
+      characteristic_code: characteristic.code,
+      product_code: product.code,
       stock: 0
     });
   }
@@ -131,6 +138,29 @@ export class DepositProductService {
       data: deposit_products,
     }
   }
+
+  /**
+   * Busca todos los inventarios por product_code y/o characteristic_code.
+   * @param productCode - Código del producto (búsqueda parcial).
+   * @param characteristicCode - Código de la característica (búsqueda parcial).
+   * @returns Lista de inventarios coincidentes.
+   */
+  async findAllWithCodes(productCode?: string, characteristicCode?: string) {
+    const query = this.depositProductRepository
+      .createQueryBuilder('dp')
+      .leftJoinAndSelect('dp.product', 'product')
+      .leftJoinAndSelect('dp.deposit', 'deposit')
+      .leftJoinAndSelect('dp.characteristic', 'characteristic');
+
+    if (productCode)
+      query.andWhere('dp.product_code ILIKE :productCode', { productCode: `%${productCode}%` });
+
+    if (characteristicCode)
+      query.andWhere('dp.characteristic_code ILIKE :characteristicCode', { characteristicCode: `%${characteristicCode}%` });
+
+    return await query.getMany();
+  }
+
 
   /**
    * Obtiene un inventario con deposito por medio del id.
@@ -229,7 +259,7 @@ export class DepositProductService {
     depositProduct.stock -= quantity;
 
     await queryRunner.manager.save<DepositProduct>(depositProduct);
-    
+
     return depositProduct;
   }
 
@@ -251,5 +281,4 @@ export class DepositProductService {
 
     return products;
   }
-
 }

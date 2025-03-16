@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsBoolean, IsNumber, IsString, IsUUID } from "class-validator";
+import { IsNumber, IsString, IsUUID } from "class-validator";
 
 export class CreateProductDto {
   @IsString()
@@ -20,20 +20,7 @@ export class CreateProductDto {
   price: number;
 
   @IsString()
-  color: string;
-
-  @IsBoolean()
-  @Type(() => Boolean)
-  is_complete: boolean;
-
-  @IsString()
-  state: string;
-
-  @IsString()
   technology: string;
-
-  @IsString()
-  material: string;
 
   @IsUUID()
   product_type_id: string;

@@ -67,10 +67,7 @@ export class ProductService {
     const whereConditions = search
       ? [
         { name: ILike(`%${search}%`) },
-        { color: ILike(`%${search}%`) },
-        { state: ILike(`%${search}%`) },
         { technology: ILike(`%${search}%`) },
-        { material: ILike(`%${search}%`) },
       ]
       : [];
 

@@ -22,19 +22,7 @@ export class Product {
   price: number;
 
   @Column()
-  color: string;
-
-  @Column()
-  is_complete: boolean;
-
-  @Column()
-  state: string;
-
-  @Column()
   technology: string;
-
-  @Column()
-  material: string;
 
   @Column({ nullable: true })
   image: string;

@@ -150,4 +150,12 @@ export enum PermissionEnum {
   METRICS_SOFT_DELETE = 'metrics.soft_delete',
   METRICS_HARD_DELETE = 'metrics.hard_delete',
   METRICS_RESTORE = 'metrics.restore',
+  
+  // Características
+  CHARACTERISTICS_CREATE = 'characteristics.create',
+  CHARACTERISTICS_READ = 'characteristics.read',
+  CHARACTERISTICS_UPDATE = 'characteristics.update',
+  CHARACTERISTICS_SOFT_DELETE = 'characteristics.soft_delete',
+  CHARACTERISTICS_HARD_DELETE = 'characteristics.hard_delete',
+  CHARACTERISTICS_RESTORE = 'characteristics.restore',
 }
