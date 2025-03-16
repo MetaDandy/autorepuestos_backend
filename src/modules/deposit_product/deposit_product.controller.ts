@@ -5,6 +5,7 @@ import { Permissions } from '../../decorator/permission/permission.decorator';
 import { PermissionEnum } from '../../enum/permission.enum';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { DepositProduct } from './entities/deposit_product.entity';
+import { Public } from 'src/decorator/public/public.decorator';
 
 @Controller('deposit_product')
 export class DepositProductController {
@@ -44,6 +45,15 @@ export class DepositProductController {
   @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_READ)
   findAllModels(@Param('id') id: string, @Query() findAllDto: FindAllDto<DepositProduct>) {
     return this.depositProductService.findAllDeposits(id, findAllDto);
+  }
+
+  @Get('code/:product/:characteristic')
+  @Public()
+  findAllWithCodes(
+    @Param('product') product_code: string, 
+    @Param('characteristic') characteristic_code:string
+  ) {
+    return this.depositProductService.findAllWithCodes(product_code, characteristic_code)
   }
 
   @Get(':id')
