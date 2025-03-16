@@ -13,6 +13,12 @@ export class EgressDetail {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   total: number;
 
+  @Column({ type: "int" })
+  stock_before: number;
+
+  @Column({ type: "int" })
+  stock_after: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

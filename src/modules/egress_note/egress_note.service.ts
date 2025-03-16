@@ -39,7 +39,6 @@ export class EgressNoteService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    console.log('Transaccion empezada');
 
     try {
       const egressNote = this.egressNoteRepository.create({
@@ -54,13 +53,25 @@ export class EgressNoteService {
       const depositProducts = await this.depositProductService.findByIds(depositProductIds);
       const depositProductMap = new Map(depositProducts.map(dp => [dp.id, dp]));
 
-      const egressDetails = this.egressDetailRepository.create(
-        details.map(detail => ({
+      const egressDetails = details.map(detail => {
+        const product = depositProductMap.get(detail.deposit_product_id);
+        if (!product) throw new Error(`Producto no encontrado para ID: ${detail.deposit_product_id}`);
+
+        const stockBefore = product.stock;
+        const stockAfter = stockBefore - detail.quantity;
+
+        if (stockAfter < 0) {
+          throw new Error(`Stock insuficiente para producto: ${product.id}`);
+        }
+
+        return this.egressDetailRepository.create({
           ...detail,
           egress_note: egressNote,
-          deposit_product: depositProductMap.get(detail.deposit_product_id),
-        }))
-      );
+          deposit_product: product,
+          stock_before: stockBefore,
+          stock_after: stockAfter,
+        });
+      });
 
       await queryRunner.manager.save<EgressDetail>(egressDetails);
 
@@ -71,14 +82,8 @@ export class EgressNoteService {
         }
       }
 
-      if (queryRunner.isTransactionActive) {
-        await queryRunner.commitTransaction();
-        console.log('transaccion completada.')
-      } else {
-        console.log("La transacción no está activa");
-      }      
+      await queryRunner.commitTransaction();
 
-      console.log('id', egressNote.id);
       const egress = await this.findOne(egressNote.id);
 
       return egress;
