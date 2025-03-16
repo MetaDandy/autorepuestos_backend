@@ -49,18 +49,24 @@ export class IncomeNoteService {
       await queryRunner.manager.save<IncomeNote>(incomeNote);
 
       const depositProductIds = [...new Set(details.map(detail => detail.deposit_product_id))];
-
       const depositProducts = await this.depositProductService.findByIds(depositProductIds);
-
       const depositProductMap = new Map(depositProducts.map(dp => [dp.id, dp]));
 
-      const incomeDetails = this.incomeDetailRepository.create(
-        details.map(detail => ({
+      const incomeDetails = details.map(detail => {
+        const product = depositProductMap.get(detail.deposit_product_id);
+        if (!product) throw new Error(`Producto no encontrado para ID: ${detail.deposit_product_id}`);
+
+        const stockBefore = product.stock;
+        const stockAfter = stockBefore + detail.quantity;
+
+        return this.incomeDetailRepository.create({
           ...detail,
           income_note: incomeNote,
-          deposit_product: depositProductMap.get(detail.deposit_product_id),
-        }))
-      );
+          deposit_product: product,
+          stock_before: stockBefore,
+          stock_after: stockAfter,
+        });
+      });
 
       await queryRunner.manager.save<IncomeDetail>(incomeDetails);
 
