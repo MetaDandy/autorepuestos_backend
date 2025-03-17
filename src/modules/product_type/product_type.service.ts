@@ -94,7 +94,7 @@ export class ProductTypeService {
       async (id) => {
         return await this.productTypeRepository
           .createQueryBuilder('product_type')
-          .leftJoin('product_type.category_type', 'product')
+          .leftJoin('product_type.product', 'product')
           .where('product_type.id = :id', { id })
           .andWhere('product.id IS NOT NULL')
           .getExists();
@@ -114,7 +114,7 @@ export class ProductTypeService {
       async (id) => {
         return await this.productTypeRepository
           .createQueryBuilder('product_type')
-          .leftJoin('product_type.category_type', 'product')
+          .leftJoin('product_type.product', 'product')
           .where('product_type.id = :id', { id })
           .andWhere('product.id IS NOT NULL')
           .getExists();
