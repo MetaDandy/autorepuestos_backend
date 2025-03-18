@@ -71,7 +71,7 @@ export class ProductService {
       ]
       : [];
 
-    const [items, total] = await this.productRepository.findAndCount({
+    const [items, totalCount] = await this.productRepository.findAndCount({
       where: whereConditions.length ? whereConditions : undefined,
       take: limit,
       skip: (page - 1) * limit,
@@ -81,10 +81,11 @@ export class ProductService {
 
     return {
       data: items,
-      total,
+      totalCount,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      hasMore: page * limit < totalCount,
+      totalPages: Math.ceil(totalCount / limit),
     };
   }
 

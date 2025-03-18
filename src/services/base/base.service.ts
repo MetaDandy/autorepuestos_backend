@@ -41,6 +41,7 @@ export class BaseService {
       limit,
       totalCount,
       hasMore: page * limit < totalCount,
+      totalPages: Math.ceil(totalCount / limit),
       data,
     }
   }
