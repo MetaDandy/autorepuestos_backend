@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Repository } from 'typeorm';
 import { ProductImage } from './entities/product_image.entity';
 import { ImageService } from '../../services/image/image.service';
 import { BaseService } from '../../services/base/base.service';
@@ -186,14 +186,22 @@ export class ProductService {
       id,
       this.productRepository,
       async (id) => {
-        return await this.productRepository
+        const count = await this.productRepository
           .createQueryBuilder('product')
           .leftJoin('product.compatibility', 'compatibility')
           .leftJoin('product.product_image', 'product_image')
           .leftJoin('product.deposit_product', 'deposit_product')
           .where('product.id = :id', { id })
-          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
-          .getExists();
+          .andWhere(
+            new Brackets((qb) => {
+              qb.where('compatibility.id IS NOT NULL')
+                .orWhere('product_image.id IS NOT NULL')
+                .orWhere('deposit_product.id IS NOT NULL');
+            })
+          )
+          .getCount();
+
+        return count > 0;
       }
     );
   }
@@ -208,14 +216,22 @@ export class ProductService {
       id,
       this.productRepository,
       async (id) => {
-        return await this.productRepository
+        const count = await this.productRepository
           .createQueryBuilder('product')
           .leftJoin('product.compatibility', 'compatibility')
           .leftJoin('product.product_image', 'product_image')
           .leftJoin('product.deposit_product', 'deposit_product')
           .where('product.id = :id', { id })
-          .andWhere('compatibility.id IS NOT NULL OR product_image.id IS NOT NULL OR deposit_product.id IS NOT NULL')
-          .getExists();
+          .andWhere(
+            new Brackets((qb) => {
+              qb.where('compatibility.id IS NOT NULL')
+                .orWhere('product_image.id IS NOT NULL')
+                .orWhere('deposit_product.id IS NOT NULL');
+            })
+          )
+          .getCount();
+
+        return count > 0;
       }
     );
   }

@@ -91,7 +91,7 @@ export class BaseService {
 
     if (!entity) throw new BadRequestException('El registro no existe');
 
-    return repository.remove(entity);
+    return repository.delete(id);
   }
 
   /**
@@ -126,12 +126,19 @@ export class BaseService {
     repository: Repository<T>, 
     relationCheck: (id: string) => Promise<boolean>
   ) {
-    const hasRelations = await relationCheck(id);
-    if (hasRelations) {
-      throw new UnauthorizedException('No se puede eliminar el registro porque tiene dependencias');
+    try {
+      const hasRelations = await relationCheck(id);
+      console.log("✅ hasRelations:", hasRelations);
+  
+      if (hasRelations) {
+        throw new UnauthorizedException('No se puede eliminar el registro porque tiene dependencias');
+      }
+  
+      return this.hardDelete(id, repository);
+    } catch (err) {
+      console.error("❌ Error en softDeleteWithRelationsCheck:", err);
+      throw err;
     }
-
-    return this.hardDelete(id, repository);
   }
 
   /**
@@ -146,12 +153,19 @@ export class BaseService {
     repository: Repository<T>, 
     relationCheck: (id: string) => Promise<boolean>
   ) {
-    const hasRelations = await relationCheck(id);
-    if (hasRelations) {
-      throw new UnauthorizedException('No se puede eliminar el registro porque tiene dependencias');
+    try {
+      const hasRelations = await relationCheck(id);
+      console.log("✅ hasRelations:", hasRelations);
+  
+      if (hasRelations) {
+        throw new UnauthorizedException('No se puede eliminar el registro porque tiene dependencias');
+      }
+  
+      return this.softDelete(id, repository);
+    } catch (err) {
+      console.error("❌ Error en softDeleteWithRelationsCheck:", err);
+      throw err;
     }
-
-    return this.softDelete(id, repository);
   }
 
   /**
