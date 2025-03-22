@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsBoolean, IsString } from "class-validator";
 
 export class CreateCharacteristicDto {
   @IsString()
@@ -7,7 +7,7 @@ export class CreateCharacteristicDto {
   @IsString()
   color: string;
 
-  @IsString()
+  @IsBoolean()
   is_complete: boolean;
 
   @IsString()
