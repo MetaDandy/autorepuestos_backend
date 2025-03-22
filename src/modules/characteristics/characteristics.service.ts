@@ -100,7 +100,7 @@ export class CharacteristicsService {
         return await this.characteristicRepository
           .createQueryBuilder('characteristic')
           .leftJoin('characteristic.deposit_product', 'deposit_product')
-          .where('product.id = :id', { id })
+          .where('characteristic.id = :id', { id })
           .andWhere('deposit_product.id IS NOT NULL')
           .getExists();
       }
@@ -120,7 +120,7 @@ export class CharacteristicsService {
         return await this.characteristicRepository
           .createQueryBuilder('characteristic')
           .leftJoin('characteristic.deposit_product', 'deposit_product')
-          .where('product.id = :id', { id })
+          .where('characteristic.id = :id', { id })
           .andWhere('deposit_product.id IS NOT NULL')
           .getExists();
       }
