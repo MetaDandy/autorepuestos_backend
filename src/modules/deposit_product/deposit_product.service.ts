@@ -57,7 +57,7 @@ export class DepositProductService {
    * @returns Los inventarios con depositos que no han sido eliminados.
    */
   async findAll(query: FindAllDto<DepositProduct>) {
-    return await this.baseService.findAll(this.depositProductRepository, query);
+    return await this.baseService.findAll(this.depositProductRepository, query, ['product', 'deposit', 'characteristic']);
   }
 
   /**
@@ -66,7 +66,7 @@ export class DepositProductService {
    * @returns Los inventarios con depositos que han sido eliminados lógicamente.
    */
   async findAllSoftDeleted(query: FindAllDto<DepositProduct>) {
-    return await this.baseService.findAllSoftDeleted(this.depositProductRepository, query);
+    return await this.baseService.findAllSoftDeleted(this.depositProductRepository, query, ['product', 'deposit', 'characteristic']);
   }
 
   /**
@@ -168,7 +168,7 @@ export class DepositProductService {
    * @returns El inventario con deposito obtenido.
    */
   async findOne(id: string) {
-    return await this.baseService.findOne(id, this.depositProductRepository, ['product', 'deposit']);
+    return await this.baseService.findOne(id, this.depositProductRepository, ['product', 'deposit', 'characteristic']);
   }
 
   /**
