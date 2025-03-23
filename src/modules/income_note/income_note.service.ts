@@ -112,7 +112,8 @@ export class IncomeNoteService {
         'income_detail',
         'income_detail.deposit_product',
         'income_detail.deposit_product.deposit',
-        'income_detail.deposit_product.product'
+        'income_detail.deposit_product.product',
+        'income_detail.deposit_product.characteristic',
       ]
     );
   }

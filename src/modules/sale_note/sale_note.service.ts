@@ -127,7 +127,8 @@ export class SaleNoteService {
         'sale_detail',
         'sale_detail.deposit_product',
         'sale_detail.deposit_product.deposit',
-        'sale_detail.deposit_product.product'
+        'sale_detail.deposit_product.product',
+        'sale_detail.deposit_product.characteristic',
       ]
     );
   }

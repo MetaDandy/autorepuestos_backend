@@ -117,7 +117,8 @@ export class EgressNoteService {
         'egress_detail',
         'egress_detail.deposit_product',
         'egress_detail.deposit_product.deposit',
-        'egress_detail.deposit_product.product'
+        'egress_detail.deposit_product.product',
+        'egress_detail.deposit_product.characteristic',
       ]
     );
   }
