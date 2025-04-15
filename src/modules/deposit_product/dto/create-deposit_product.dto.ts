@@ -1,14 +1,8 @@
-import { Type } from "class-transformer";
-import { IsNumber, IsUUID } from "class-validator";
+import { IsString, IsUUID } from "class-validator";
 
 export class CreateDepositProductDto {
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 2
-  })
-  @Type(() => Number)
-  price: number;
+  @IsString()
+  price: string;
 
   @IsUUID()
   product_id: string;
