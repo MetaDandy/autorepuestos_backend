@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Patch } from '@nestjs/common';
 import { DepositProductService } from './deposit_product.service';
 import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
 import { Permissions } from '../../decorator/permission/permission.decorator';
@@ -6,6 +6,7 @@ import { PermissionEnum } from '../../enum/permission.enum';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { DepositProduct } from './entities/deposit_product.entity';
 import { Public } from 'src/decorator/public/public.decorator';
+import { UpdatePriceDepositProductDto } from './dto/update-price_deposit_product';
 
 @Controller('deposit_product')
 export class DepositProductController {
@@ -60,6 +61,12 @@ export class DepositProductController {
   @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_READ)
   findOne(@Param('id') id: string) {
     return this.depositProductService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_RESTORE)
+  updatePrice(@Param('id') id: string, @Body() updatePriceDepositProductDto: UpdatePriceDepositProductDto) {
+    return this.depositProductService.updatePrice(id, updatePriceDepositProductDto);
   }
 
   @Delete('soft_delete/:id')

@@ -20,6 +20,9 @@ export class DepositProduct {
   @Column()
   stock: number;
 
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  price: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

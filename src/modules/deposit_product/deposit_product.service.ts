@@ -8,6 +8,7 @@ import { ProductService } from '../product/product.service';
 import { DepositService } from '../deposit/deposit.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { CharacteristicsService } from '../characteristics/characteristics.service';
+import { UpdatePriceDepositProductDto } from './dto/update-price_deposit_product';
 
 @Injectable()
 export class DepositProductService {
@@ -26,10 +27,10 @@ export class DepositProductService {
    * @returns El inventario en un deposito creado con stock 0.
    */
   async create(createDepositProductDto: CreateDepositProductDto) {
-    const { deposit_id, product_id, characteristic_id } = createDepositProductDto;
-    
+    const { deposit_id, product_id, characteristic_id, price } = createDepositProductDto;
+
     const existingDepositProduct = await this.depositProductRepository.findOne({
-      where: { deposit: { id: deposit_id }, product: { id: product_id }, characteristic: { id : characteristic_id } },
+      where: { deposit: { id: deposit_id }, product: { id: product_id }, characteristic: { id: characteristic_id } },
       withDeleted: true,
     });
 
@@ -42,6 +43,7 @@ export class DepositProductService {
       throw new BadRequestException('El producto ya está registrado en este depósito.');
 
     return await this.depositProductRepository.save({
+      price,
       deposit,
       product,
       characteristic,
@@ -169,6 +171,19 @@ export class DepositProductService {
    */
   async findOne(id: string) {
     return await this.baseService.findOne(id, this.depositProductRepository, ['product', 'deposit', 'characteristic']);
+  }
+
+  /**
+   * Edita únicamente el precio.
+   * @param updatePriceDepositColumnDto - Variables para la edición.
+   * @returns El inventario con deposito con solo el precio editado
+   */
+  async updatePrice(id: string, updatePriceDepositColumnDto: UpdatePriceDepositProductDto) {
+    const { price } = updatePriceDepositColumnDto;
+    const deposit_product = await this.findOne(id);
+
+    deposit_product.price = price;
+    return await this.depositProductRepository.save(deposit_product);
   }
 
   /**
