@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DepositProduct } from './entities/deposit_product.entity';
 import { In, QueryRunner, Repository } from 'typeorm';
-import { BaseService } from '../../services/base/base.service';
-import { ProductService } from '../product/product.service';
-import { DepositService } from '../deposit/deposit.service';
 import { FindAllDto } from '../../dto/findAll.dto';
+import { BaseService } from '../../services/base/base.service';
 import { CharacteristicsService } from '../characteristics/characteristics.service';
+import { DepositService } from '../deposit/deposit.service';
+import { ProductService } from '../product/product.service';
+import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
 import { UpdatePriceDepositProductDto } from './dto/update-price_deposit_product';
+import { DepositProduct } from './entities/deposit_product.entity';
 
 @Injectable()
 export class DepositProductService {
@@ -184,6 +184,26 @@ export class DepositProductService {
 
     deposit_product.price = price;
     return await this.depositProductRepository.save(deposit_product);
+  }
+
+  /**
+ * Actualiza masivamente el precio de múltiples productos en depósito.
+ * @param ids - Arreglo de UUIDs de productos en depósito a actualizar.
+ * @param price - Nuevo precio que se asignará a cada producto.
+ * @returns Mensaje indicando la cantidad de precios actualizados.
+ */
+
+  async updatePricesBulk(ids: string[], price: string) {
+
+    // Actualizar precios
+    await this.depositProductRepository
+      .createQueryBuilder()
+      .update(DepositProduct)
+      .set({ price })
+      .where("id IN (:...ids)", { ids })
+      .execute();
+
+    return { message: `${ids.length} precios actualizados` };
   }
 
   /**

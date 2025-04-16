@@ -1,10 +1,10 @@
-import { Product } from "../../product/entities/product.entity";
-import { Deposit } from "../../deposit/entities/deposit.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { IncomeDetail } from "../../income_note/entities/income_detail.entity";
-import { EgressDetail } from "../../egress_note/entities/egress_detail.entity";
-import { SaleDetail } from "../../sale_note/entities/sale_detail.entity";
 import { Characteristic } from "../../characteristics/entities/characteristic.entity";
+import { Deposit } from "../../deposit/entities/deposit.entity";
+import { EgressDetail } from "../../egress_note/entities/egress_detail.entity";
+import { IncomeDetail } from "../../income_note/entities/income_detail.entity";
+import { Product } from "../../product/entities/product.entity";
+import { SaleDetail } from "../../sale_note/entities/sale_detail.entity";
 
 @Entity({ name: 'deposit_product' })
 export class DepositProduct {
@@ -20,7 +20,7 @@ export class DepositProduct {
   @Column()
   stock: number;
 
-  @Column()
+  @Column({ nullable: true })
   price: string;
 
   @CreateDateColumn()

@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Public } from 'src/decorator/public/public.decorator';
+import { Permissions } from '../../decorator/permission/permission.decorator';
+import { FindAllDto } from '../../dto/findAll.dto';
+import { PermissionEnum } from '../../enum/permission.enum';
 import { DepositProductService } from './deposit_product.service';
 import { CreateDepositProductDto } from './dto/create-deposit_product.dto';
-import { Permissions } from '../../decorator/permission/permission.decorator';
-import { PermissionEnum } from '../../enum/permission.enum';
-import { FindAllDto } from '../../dto/findAll.dto';
-import { DepositProduct } from './entities/deposit_product.entity';
-import { Public } from 'src/decorator/public/public.decorator';
 import { UpdatePriceDepositProductDto } from './dto/update-price_deposit_product';
+import { DepositProduct } from './entities/deposit_product.entity';
 
 @Controller('deposit_product')
 export class DepositProductController {
@@ -51,8 +51,8 @@ export class DepositProductController {
   @Get('code/:product/:characteristic')
   @Public()
   findAllWithCodes(
-    @Param('product') product_code: string, 
-    @Param('characteristic') characteristic_code:string
+    @Param('product') product_code: string,
+    @Param('characteristic') characteristic_code: string
   ) {
     return this.depositProductService.findAllWithCodes(product_code, characteristic_code)
   }
@@ -67,6 +67,14 @@ export class DepositProductController {
   @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_RESTORE)
   updatePrice(@Param('id') id: string, @Body() updatePriceDepositProductDto: UpdatePriceDepositProductDto) {
     return this.depositProductService.updatePrice(id, updatePriceDepositProductDto);
+  }
+
+  @Patch('bulk/update-price')
+  @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_RESTORE)
+  async updatePricesBulk(
+    @Body() updatePricesDto: { ids: string[]; price: string },
+  ) {
+    return this.depositProductService.updatePricesBulk(updatePricesDto.ids, updatePricesDto.price);
   }
 
   @Delete('soft_delete/:id')
