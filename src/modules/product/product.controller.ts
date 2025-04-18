@@ -1,14 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, Query, UploadedFiles } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { MultipleImagesUploadInterceptor } from '../../decorator/multiple_images_upload_interceptor/multiple_images_upload_interceptor.decorator';
+import { OneImageUploadInterceptor } from '../../decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
+import { Permissions } from '../../decorator/permission/permission.decorator';
+import { Public } from '../../decorator/public/public.decorator';
+import { FindAllDto } from '../../dto/findAll.dto';
+import { PermissionEnum } from '../../enum/permission.enum';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Permissions } from '../../decorator/permission/permission.decorator';
-import { PermissionEnum } from '../../enum/permission.enum';
-import { OneImageUploadInterceptor } from '../../decorator/one_image_upload_interceptor/one_image_upload_interceptor.decorator';
-import { Public } from '../../decorator/public/public.decorator';
 import { Product } from './entities/product.entity';
-import { FindAllDto } from '../../dto/findAll.dto';
-import { MultipleImagesUploadInterceptor } from '../../decorator/multiple_images_upload_interceptor/multiple_images_upload_interceptor.decorator';
+import { ProductService } from './product.service';
 
 @Controller('product')
 export class ProductController {
@@ -49,7 +49,8 @@ export class ProductController {
   }
 
   @Get(':id')
-  @Permissions(PermissionEnum.PRODUCT_READ)
+  @Public()
+  //@Permissions(PermissionEnum.PRODUCT_READ)
   findOne(@Param('id') id: string) {
     return this.productService.findOne(id);
   }

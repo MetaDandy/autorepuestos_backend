@@ -37,7 +37,7 @@ export class DepositProductController {
   }
 
   @Get('product/:id')
-  @Permissions(PermissionEnum.PRODUCT_WAREHOUSE_READ)
+  @Public()
   findAllProducts(@Param('id') id: string, @Query() findAllDto: FindAllDto<DepositProduct>) {
     return this.depositProductService.findAllProducts(id, findAllDto);
   }
