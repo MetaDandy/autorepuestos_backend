@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { SaleNote } from "./sale_note.entity";
 import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
+import { SaleNote } from "./sale_note.entity";
 
 @Entity({ name: 'sale_detail' })
 export class SaleDetail {
@@ -22,15 +22,14 @@ export class SaleDetail {
   @Column({ type: "int" })
   stock_after: number;
 
-
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @ManyToOne(() => SaleNote, (sale_note) => sale_note.sale_detail)
   sale_note: Relation<SaleNote>;

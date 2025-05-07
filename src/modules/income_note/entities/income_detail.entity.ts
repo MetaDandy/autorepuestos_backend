@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { IncomeNote } from "./income_note.entity";
 import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
+import { IncomeNote } from "./income_note.entity";
 
 @Entity({ name: 'income_detail' })
 export class IncomeDetail {
@@ -19,14 +19,14 @@ export class IncomeDetail {
   @Column({ type: "int" })
   stock_after: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @ManyToOne(() => IncomeNote, (income_note) => income_note.income_detail)
   income_note: Relation<IncomeNote>;

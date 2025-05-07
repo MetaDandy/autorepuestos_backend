@@ -1,5 +1,5 @@
-import { CategoryType } from "../../category_type/entities/category_type.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { CategoryType } from "../../category_type/entities/category_type.entity";
 
 @Entity({ name: 'category' })
 export class Category {
@@ -12,14 +12,14 @@ export class Category {
   @Column()
   description: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => CategoryType, (category_type) => category_type.category)
   category_type: Relation<CategoryType[]>;

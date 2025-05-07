@@ -1,8 +1,8 @@
-import { ProductType } from "../../product_type/entities/product_type.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
-import { ProductImage } from "./product_image.entity";
 import { Compatibility } from "../../compatibility/entities/compatibility.entity";
 import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
+import { ProductType } from "../../product_type/entities/product_type.entity";
+import { ProductImage } from "./product_image.entity";
 
 @Entity({ name: 'product' })
 export class Product {  
@@ -27,14 +27,14 @@ export class Product {
   @Column({ nullable: true })
   image: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => ProductImage, (product_image) => product_image.product)
   product_image: Relation<ProductImage[]>;

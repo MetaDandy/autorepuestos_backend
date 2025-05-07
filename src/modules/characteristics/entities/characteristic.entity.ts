@@ -1,5 +1,5 @@
-import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { DepositProduct } from "../../deposit_product/entities/deposit_product.entity";
 
 @Entity({ name: 'characteristic' })
 export class Characteristic {
@@ -18,14 +18,14 @@ export class Characteristic {
   @Column()
   state: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => DepositProduct, (deposit_product) => deposit_product.characteristic)
   deposit_product: Relation<DepositProduct[]>;

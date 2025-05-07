@@ -1,6 +1,6 @@
-import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
-import * as path from 'path';
 import { registerAs } from "@nestjs/config";
+import * as path from 'path';
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
 //factory function
 export default registerAs("dbconfig.dev", (): PostgresConnectionOptions => ({
@@ -9,6 +9,8 @@ export default registerAs("dbconfig.dev", (): PostgresConnectionOptions => ({
   type: "postgres",
   entities: [path.resolve(__dirname, "..") + '/**/*.entity{.ts,.js}'],
   synchronize: process.env.NODE_ENV !== 'production',
-  // logging: true
+  extra: {
+    options: `-c timezone=${process.env.TZ || 'America/La_Paz'}`
+  },
 })
 );

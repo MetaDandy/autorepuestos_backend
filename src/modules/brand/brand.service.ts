@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brand } from './entities/brand.entity';
 import { Repository } from 'typeorm';
-import { SupabaseService } from '../../supabase/supabase.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { BaseService } from '../../services/base/base.service';
 import { ImageService } from '../../services/image/image.service';
+import { SupabaseService } from '../../supabase/supabase.service';
+import { CreateBrandDto } from './dto/create-brand.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
+import { Brand } from './entities/brand.entity';
 
 @Injectable()
 export class BrandService {
@@ -143,7 +143,7 @@ export class BrandService {
         return await this.brandRepository
           .createQueryBuilder('brand')
           .leftJoin('brand.model', 'model')
-          .where('category.id = :id', { id })
+          .where('brand.id = :id', { id })
           .andWhere('model.id IS NOT NULL')
           .getExists();
       }
@@ -163,7 +163,7 @@ export class BrandService {
         return await this.brandRepository
           .createQueryBuilder('brand')
           .leftJoin('brand.model', 'model')
-          .where('category.id = :id', { id })
+          .where('brand.id = :id', { id })
           .andWhere('model.id IS NOT NULL')
           .getExists();
       }

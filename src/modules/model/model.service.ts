@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateModelDto } from './dto/create-model.dto';
-import { UpdateModelDto } from './dto/update-model.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Model } from './entities/model.entity';
 import { Repository } from 'typeorm';
-import { SupabaseService } from '../../supabase/supabase.service';
-import { ImageService } from '../../services/image/image.service';
-import { BrandService } from '../brand/brand.service';
 import { FindAllDto } from '../../dto/findAll.dto';
 import { BaseService } from '../../services/base/base.service';
+import { ImageService } from '../../services/image/image.service';
+import { SupabaseService } from '../../supabase/supabase.service';
+import { BrandService } from '../brand/brand.service';
+import { CreateModelDto } from './dto/create-model.dto';
+import { UpdateModelDto } from './dto/update-model.dto';
+import { Model } from './entities/model.entity';
 
 @Injectable()
 export class ModelService {
@@ -151,7 +151,7 @@ export class ModelService {
         return await this.modelRepository
           .createQueryBuilder('model')
           .leftJoin('model.compatibility', 'compatibility')
-          .where('category.id = :id', { id })
+          .where('model.id = :id', { id })
           .andWhere('compatibility.id IS NOT NULL')
           .getExists();
       }
@@ -171,7 +171,7 @@ export class ModelService {
         return await this.modelRepository
           .createQueryBuilder('model')
           .leftJoin('model.compatibility', 'compatibility')
-          .where('category.id = :id', { id })
+          .where('model.id = :id', { id })
           .andWhere('compatibility.id IS NOT NULL')
           .getExists();
       }

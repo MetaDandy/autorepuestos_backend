@@ -23,14 +23,14 @@ export class DepositProduct {
   @Column({ nullable: true })
   price: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => IncomeDetail, (income_detail) => income_detail.deposit_product)
   income_detail: Relation<IncomeDetail[]>;

@@ -1,5 +1,5 @@
-import { Model } from "../../model/entities/model.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Model } from "../../model/entities/model.entity";
 
 @Entity()
 export class Brand {
@@ -12,14 +12,14 @@ export class Brand {
   @Column({ nullable: true })
   logo: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => Model, (model) => model.brand)
   model: Relation<Model[]>;

@@ -1,6 +1,6 @@
-import { ProductType } from "../../product_type/entities/product_type.entity";
-import { Category } from "../../category/entities/category.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Category } from "../../category/entities/category.entity";
+import { ProductType } from "../../product_type/entities/product_type.entity";
 
 @Entity({ name: 'category_type' })
 export class CategoryType {
@@ -13,14 +13,14 @@ export class CategoryType {
     @Column()
     description: string;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ type: 'timestamptz' })
     updatedAt: Date;
 
-    @DeleteDateColumn()
-    deletedAt: Date;
+    @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+    deletedAt: Date | null;
 
     @ManyToOne(() => Category, (category) => category.category_type)
     category: Relation<Category>;

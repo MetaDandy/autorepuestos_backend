@@ -1,6 +1,6 @@
-import { Compatibility } from "../../compatibility/entities/compatibility.entity";
-import { Brand } from "../../brand/entities/brand.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { Brand } from "../../brand/entities/brand.entity";
+import { Compatibility } from "../../compatibility/entities/compatibility.entity";
 
 @Entity()
 export class Model {
@@ -13,14 +13,14 @@ export class Model {
   @Column({ nullable: true })
   image: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => Compatibility, (compatibility) => compatibility.model)
   compatibility: Relation<Compatibility[]>;

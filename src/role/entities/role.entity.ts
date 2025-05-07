@@ -7,25 +7,25 @@ export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true})
+  @Column({ unique: true })
   name: string;
 
   @Column()
   description: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
-  @ManyToMany(()=>Permission, (permission)=> permission.roles)
-  @JoinTable({name: 'role_permission'})
+  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @JoinTable({ name: 'role_permission' })
   permissions: Permission[];
 
-  @OneToMany(()=>User, (user)=> user.role)
+  @OneToMany(() => User, (user) => user.role)
   user: Relation<User[]>;
 }

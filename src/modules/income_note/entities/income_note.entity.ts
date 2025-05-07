@@ -1,5 +1,5 @@
-import { User } from "../../../auth/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, UpdateDateColumn } from "typeorm";
+import { User } from "../../../auth/entities/user.entity";
 import { IncomeDetail } from "./income_detail.entity";
 
 @Entity({ name: 'income_note' })
@@ -16,14 +16,14 @@ export class IncomeNote {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   total: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => IncomeDetail, (income_detail) => income_detail.income_note)
   income_detail: Relation<IncomeDetail[]>;
