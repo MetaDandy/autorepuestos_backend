@@ -20,7 +20,7 @@ export class DepositProduct {
   @Column()
   stock: number;
 
-  @Column()
+  @Column({ nullable: true }) // ! Puesto nullable porque en la db dev hay nulos
   price: string;
 
   @CreateDateColumn()

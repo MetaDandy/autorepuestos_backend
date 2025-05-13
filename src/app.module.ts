@@ -27,11 +27,14 @@ import { MetricsCodeModule } from './modules/metrics_code/metrics_code.module';
 import { EgressNoteModule } from './modules/egress_note/egress_note.module';
 import { SaleNoteModule } from './modules/sale_note/sale_note.module';
 import { CharacteristicsModule } from './modules/characteristics/characteristics.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditInterceptor } from './modules/audit/audit.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true,
+      isGlobal: true,
       expandVariables: true,
       load: [dbConfig]
     }),
@@ -58,8 +61,18 @@ import { CharacteristicsModule } from './modules/characteristics/characteristics
     EgressNoteModule,
     SaleNoteModule,
     CharacteristicsModule,
+    AuditModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy, ImageService, BaseService],
+  providers: [
+    AppService,
+    JwtStrategy,
+    ImageService,
+    BaseService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -32,7 +32,7 @@ export class AuthService {
   /**
    * Funcion de login.
    * @param authDto 
-   * @returns Devuelve el token jwt y el refresh token del usuario.
+   * @returns Devuelve el token jwt.
    */
   async signIn(authDto: AuthDto) {
     const { email, password } = authDto;
@@ -60,8 +60,6 @@ export class AuthService {
     const token = this.jswtService.sign(payload, {
       expiresIn: '18h'
     });
-
-    await this.userRepository.save(user);
 
     return {
       token,
